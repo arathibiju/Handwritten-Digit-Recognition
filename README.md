@@ -5,6 +5,7 @@ Created by Arathi Biju and Dexter Pham
 
 ## Installation Guide
 
+pip install Qt5 torch torchvision 
 
 ## Running the project
 

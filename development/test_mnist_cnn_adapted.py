@@ -11,12 +11,12 @@ device = 'cuda' if cuda.is_available() else 'cpu'
 print(f'Training MNIST Model on {device}\n{"=" * 44}')
 
 # MNIST Dataset
-train_dataset = datasets.FashionMNIST(root='fashion_mnist_data/',
+train_dataset = datasets.MNIST(root='mnist_data/',
                                train=True,
                                transform=transforms.ToTensor(),
                                download=True)
 
-test_dataset = datasets.FashionMNIST(root='fashion_mnist_data/',
+test_dataset = datasets.MNIST(root='mnist_data/',
                               train=False,
                               transform=transforms.ToTensor())
 
@@ -45,7 +45,7 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(32),
             nn.MaxPool2d(2, 2),
-            nn.Dropout(0.25)
+            nn.Dropout(0.3)
         )
         
         self.conv2 = nn.Sequential(
@@ -59,7 +59,7 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(64),
             nn.MaxPool2d(2, 2),
-            nn.Dropout(0.25)
+            nn.Dropout(0.3)
         )
         
         self.conv3 = nn.Sequential(
@@ -67,7 +67,7 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(128),
             nn.MaxPool2d(2, 2),
-            nn.Dropout(0.25)    #Turn this off for aggressive predictions
+            #nn.Dropout(0.2)    #Turn this off for aggressive predictions
         )
         
         self.fc = nn.Sequential(
@@ -82,7 +82,7 @@ class Net(nn.Module):
         
         x = x.view(x.size(0), -1)
         x = self.fc(x)
-        #x = F.log_softmax(x, dim=1)
+        #x = F.log_softmax(x, dim=1)        #use either this or the nn.CrossEngtropyLoss(), doesnt really matter
         return x
 
 
@@ -109,10 +109,13 @@ def train(epoch):
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
+
+max_accuracy = 0
 def test():
     model.eval()
     test_loss = 0
     correct = 0
+    global max_accuracy
     for data, target in test_loader:
         data, target = data.to(device), target.to(device)
         output = model(data)
@@ -122,14 +125,19 @@ def test():
         pred = output.data.max(1, keepdim=True)[1]
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
+    print(int(correct))
+    print(max_accuracy) 
     test_loss /= len(test_loader.dataset)
     print(f'===========================\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} '
           f'({100. * correct / len(test_loader.dataset):.0f}%)')
-
+    max_accuracy = int(correct) if int(correct) > max_accuracy else max_accuracy
+    print(f'Max accuracy so far: {max_accuracy} \n')
+   
 
 if __name__ == '__main__':
+    
     since = time.time()
-    for epoch in range(1, 10):
+    for epoch in range(1, 21):
         epoch_start = time.time()
         train(epoch)
         m, s = divmod(time.time() - epoch_start, 60)

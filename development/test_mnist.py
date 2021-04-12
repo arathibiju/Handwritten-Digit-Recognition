@@ -11,12 +11,12 @@ device = 'cuda' if cuda.is_available() else 'cpu'
 print(f'Training MNIST Model on {device}\n{"=" * 44}')
 
 # MNIST Dataset
-train_dataset = datasets.FashionMNIST(root='fashion_mnist_data/',
+train_dataset = datasets.MNIST(root='mnist_data/',
                                train=True,
                                transform=transforms.ToTensor(),
                                download=True)
 
-test_dataset = datasets.FashionMNIST(root='fashion_mnist_data/',
+test_dataset = datasets.MNIST(root='mnist_data/',
                               train=False,
                               transform=transforms.ToTensor())
 

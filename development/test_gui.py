@@ -50,7 +50,7 @@ class MyApp(QMainWindow):
             return # Ignore the first time.
 
         painter = QPainter(self.label.pixmap())
-        painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
+        painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
         painter.end()
         self.update()
 
@@ -63,10 +63,10 @@ class MyApp(QMainWindow):
         self.last_x = None
         self.last_y = None
         
-    #def resizeEvent(self, event):
-      #  canvas = self.label.pixmap()
-       # canvas = canvas.scaled(self.width(), self.height(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-      #  self.label.setPixmap(canvas)
+    def resizeEvent(self, event):
+        canvas = self.label.pixmap()
+        canvas = canvas.scaled(self.width(), self.height(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.label.setPixmap(canvas)
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)

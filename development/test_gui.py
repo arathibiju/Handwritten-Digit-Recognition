@@ -1,4 +1,3 @@
-
 import sys
 from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QLabel, QMainWindow, QPushButton, QSizePolicy, QWidget, qApp
 from PyQt5.QtGui import QColor, QIcon, QPainter, QPen, QPixmap
@@ -6,8 +5,8 @@ from PyQt5.QtCore import QSize, Qt
 
 
 class drawCanvas(QWidget) :
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
 
         self.layout = QGridLayout()
         self.setLayout(self.layout)
@@ -44,6 +43,11 @@ class drawCanvas(QWidget) :
             self.last_x = e.x()
             self.last_y = e.y()
 
+    def clearCanvas(self):
+        canvas = self.label.pixmap()
+        canvas.fill(QColor("white"))
+        self.update()
+
 
     def mouseReleaseEvent(self, e):
         
@@ -57,37 +61,28 @@ class drawCanvas(QWidget) :
 
 class MyApp(QMainWindow):
 
-    def __init__(self, parent = None):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         
-        # canvas = QPixmap(400, 300)
-        # canvas.fill(QColor("white"))
-        # self.label = QLabel()
-        # self.label.setPixmap(canvas)
-        # self.setCentralWidget(self.label)
-
-        # grid = QGridLayout()
-        # self.setLayout(grid)
-
-        # grid.addWidget(self.label,0,0)
-        # grid.addWidget(QPushButton("Button two"),0,1)
-        
-        
-
         self.initUI()
 
         self.window = QWidget()
-        
-        self.layout = QGridLayout()
         self.setCentralWidget(self.window)
+        self.layout = QGridLayout()
         self.window.setLayout(self.layout)
   
         self.draw_widget = drawCanvas()
   
-        self.layout.addWidget(self.draw_widget,0,0,5,5)
-        self.layout.addWidget(QPushButton("Clear"),0,6)
-        self.layout.addWidget(QPushButton("Model"),0,7)
-        self.layout.addWidget(QPushButton("Recognize"),0,8)
+        self.layout.addWidget(self.draw_widget,0,0,5,1)
+
+        clearButton = QPushButton("Clear",self)
+        clearButton.clicked.connect(self.draw_widget.clearCanvas)
+
+        modelButton = QPushButton("Model",self)
+        recognizeButton = QPushButton("Recognize",self)
+        self.layout.addWidget(clearButton,1,1)
+        self.layout.addWidget(modelButton,2,1)
+        self.layout.addWidget(recognizeButton,3,1)
 
 
     def initUI(self):
@@ -130,6 +125,8 @@ class MyApp(QMainWindow):
 
         self.setWindowTitle('Handwritten Digit Recognizer')
         self.setGeometry(300, 300, 600, 500)
+
+    
 
     # def mouseMoveEvent(self, e):
         

@@ -8,6 +8,12 @@ class drawCanvas(QWidget) :
     def __init__(self):
         super().__init__()
 
+
+
+
+
+
+
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         

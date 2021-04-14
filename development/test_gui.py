@@ -8,12 +8,6 @@ class drawCanvas(QWidget) :
     def __init__(self):
         super().__init__()
 
-
-
-
-
-
-
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         
@@ -53,10 +47,15 @@ class drawCanvas(QWidget) :
         canvas = self.label.pixmap()
         canvas.fill(QColor("white"))
         self.update()
+    
+    def saveImage(self):
+        image = self.label.pixmap()
+        image = image.scaled(20, 20, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
+        image.save("Testfxghfgdcjg.png")
+
 
 
     def mouseReleaseEvent(self, e):
-        
             
         self.last_x = None
         self.last_y = None
@@ -84,11 +83,18 @@ class MyApp(QMainWindow):
         clearButton = QPushButton("Clear",self)
         clearButton.clicked.connect(self.draw_widget.clearCanvas)
 
+        saveButton = QPushButton("Save", self)
+        saveButton.clicked.connect(self.draw_widget.saveImage)
+
         modelButton = QPushButton("Model",self)
+
         recognizeButton = QPushButton("Recognize",self)
+
+
         self.layout.addWidget(clearButton,1,1)
         self.layout.addWidget(modelButton,2,1)
         self.layout.addWidget(recognizeButton,3,1)
+        self.layout.addWidget(saveButton,4,1)
 
 
     def initUI(self):

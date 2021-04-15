@@ -1,7 +1,10 @@
 import sys
-from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QLabel, QMainWindow, QPushButton, QSizePolicy, QWidget, qApp
-from PyQt5.QtGui import QColor, QIcon, QPainter, QPen, QPixmap
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog
+from PyQt5.QtWidgets    import QMainWindow, QAction, qApp, QDesktopWidget, QSizePolicy
+from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QVBoxLayout, QTextBrowser, QProgressBar
+from PyQt5.QtGui        import QColor, QIcon, QPainter, QPen, QPixmap
+from PyQt5.QtCore       import QSize, Qt, QBasicTimer
+#import controller
 
 
 class drawCanvas(QWidget) :
@@ -34,8 +37,10 @@ class drawCanvas(QWidget) :
              return # Ignore the first time.
 
             painter = QPainter(self.label.pixmap())
-            painter.setPen(QPen(Qt.black, 8))
-            painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
+            painter.setPen(QPen(Qt.black, 25))
+            #painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
+            painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
+
             painter.end()
             self.update()
 
@@ -50,7 +55,7 @@ class drawCanvas(QWidget) :
     
     def saveImage(self):
         image = self.label.pixmap()
-        image = image.scaled(20, 20, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
+        #image = image.scaled(20, 20, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
         image.save("Testfxghfgdcjg.png")
 
 
@@ -171,11 +176,100 @@ class MyApp(QMainWindow):
     #     self.label.setPixmap(canvas)
 
 
+### This class is a browser for the download button and the train button.
+### Make it easier for the user to see what's going on ?
+class trainModelDialog(QWidget):
+    def __init__(self):
+        super().__init__()
+        
+        self.initUI()
+        
 
 
+        
+
+    def initUI(self):
+### Set up the browser here
+        self.text_brower = QTextBrowser()
+        self.text_brower.setAcceptRichText(True)
+
+### Set up the progress bar here
+    # Label for the progress bar
+        self.plabel = QLabel('0%', self)
+    # Nothing is connected to the progress bar for now!
+        self.pbar = QProgressBar(self)
+        self.pbar.setTextVisible(True)
+        self.pbar.setAlignment(Qt.AlignCenter)
+
+
+### Set the layout for the trainModelDialog window.
+### Here we use a combination of HBox and VBox
+    #First, define the buttons we want to use
+        self.train_btn = QPushButton('&Train', self)
+        self.download_btn = QPushButton('&Download MNIST', self)
+        self.cancel_btn = QPushButton('&Cancel', self)
+
+        self.train_btn.setCheckable(True)
+        self.download_btn.setEnabled(False)
+        self.cancel_btn.setEnabled(False)
+        self.train_btn.clicked.connect(self.enable_button)
+        #self.download_btn.clicked.connect(something)
+        #self.cancel_btn.clicked.connect(something)
+
+    #hbox for all the buttons
+        hbox = QHBoxLayout()
+        #hbox.addStretch(0)
+        hbox.addWidget(self.download_btn)
+        hbox.addWidget(self.train_btn)
+        hbox.addWidget(self.cancel_btn)
+
+    #hbox for the progress bar!
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(self.pbar)
+        hbox2.addWidget(self.plabel)
+      
+        vbox  = QVBoxLayout()
+        #vbox.addStretch(4)
+        vbox.addWidget(self.text_brower)
+        vbox.addLayout(hbox2)
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)   
+
+    ### Initialise the postion of the trainModelDialog window.
+        # It's not easy to make this tile to be at the centrem
+        # may need to create a custom bar for this
+        self.setWindowTitle('Dialog')
+        self.move(300, 300)
+        self.resize(400, 200)
+        self.centre()
+        self.show()
+
+    
+
+    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
+    def centre(self): 
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft()) 
+
+    def enable_button(self):
+        if self.train_btn.isChecked():
+            self.download_btn.setEnabled(True)
+            self.cancel_btn.setEnabled(True)
+        else:
+            self.download_btn.setEnabled(False)
+            self.cancel_btn.setEnabled(False)   
+
+
+    
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MyApp()
     ex.show()
+    ex1 = trainModelDialog()
+    ex1.show()
     sys.exit(app.exec_())
+

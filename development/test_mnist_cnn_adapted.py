@@ -1,9 +1,11 @@
 from __future__ import print_function
 from torch import nn, optim, cuda
 from torch.utils import data
-from torchvision import datasets, transforms
+from torchvision import datasets, transforms, models
 import torch.nn.functional as F
 import time
+import matplotlib as plt
+import numpy as np
 
 # Training settings
 batch_size = 30
@@ -28,6 +30,7 @@ train_loader = data.DataLoader(dataset=train_dataset,
 test_loader = data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size,
                                           shuffle=False)
+
 
 
 class Net(nn.Module):

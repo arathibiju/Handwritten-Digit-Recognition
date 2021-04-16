@@ -180,20 +180,15 @@ class MyApp(QMainWindow):
 ### Make it easier for the user to see what's going on ?
 class trainModelDialog(QWidget):
     def __init__(self):
-        super().__init__()
-        
+        super().__init__()   
         self.initUI()
         
-
-
-        
-
     def initUI(self):
-### Set up the browser here
+    ### Set up the browser here
         self.text_brower = QTextBrowser()
         self.text_brower.setAcceptRichText(True)
 
-### Set up the progress bar here
+    ### Set up the progress bar here
     # Label for the progress bar
         self.plabel = QLabel('0%', self)
     # Nothing is connected to the progress bar for now!
@@ -202,8 +197,8 @@ class trainModelDialog(QWidget):
         self.pbar.setAlignment(Qt.AlignCenter)
 
 
-### Set the layout for the trainModelDialog window.
-### Here we use a combination of HBox and VBox
+    ### Set the layout for the trainModelDialog window.
+    ### Here we use a combination of HBox and VBox
     #First, define the buttons we want to use
         self.train_btn = QPushButton('&Train', self)
         self.download_btn = QPushButton('&Download MNIST', self)

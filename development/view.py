@@ -22,10 +22,10 @@ class View:
         #self.mainloop()
         
         
-        #ex = MyApp(self)
-        # ex.show()
+        self.ex = MyApp(self)
+        
         self.ex1 = trainModelDialog(self)
-        # ex1.show()
+        #ex1.show()
         # #ex1.hide()
         #sys.exit(app.exec_())
 
@@ -94,7 +94,7 @@ class MyApp(QMainWindow):
 
     def __init__(self, view):
         super().__init__()
-        
+        print('myapp')
         self.initUI()
 
         self.window = QWidget()
@@ -124,6 +124,7 @@ class MyApp(QMainWindow):
 
 
     def initUI(self):
+        print('myapp ui')
         ## menu bar set up
         # Set menu bar exit action
         exitAction = QAction(QIcon('exit.png'), 'Exit', self)
@@ -164,7 +165,7 @@ class MyApp(QMainWindow):
         self.setWindowTitle('Handwritten Digit Recognizer')
         self.setGeometry(300, 300, 600, 500)
 
-    
+        self.show()
 
     # def mouseMoveEvent(self, e):
         
@@ -231,14 +232,17 @@ class trainModelDialog(QWidget):
         self.train_btn = QPushButton('&Train', self)
         self.download_btn = QPushButton('&Download MNIST', self)
         self.cancel_btn = QPushButton('&Cancel', self)
+
         print('hey we are inside initUI dialog')
         print(self.View)
         print(self)
+
         self.download_btn.setCheckable(True)
+
         self.train_btn.setEnabled(False)
         #self.cancel_btn.setCheckable(True)
-        self.download_btn.clicked.connect(self.Controller.enable_train_btn)
-        #self.cancel_btn.clicked.connect(something)
+        self.download_btn.clicked.connect(self.Controller.start_worker_1)
+        self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
 
     #hbox for all the buttons
         hbox = QHBoxLayout()

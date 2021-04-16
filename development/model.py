@@ -67,14 +67,17 @@ class Model():
         print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {device}!')
 
     def download_data(self):
-        train_dataset = datasets.MNIST(root='mnist_data/',
-                                    train=True,
-                                    transform=transforms.ToTensor(),
-                                    download=True)
+        try:
+            train_dataset = datasets.MNIST(root='mnist_data/',
+                                        train=True,
+                                        transform=transforms.ToTensor(),
+                                        download=True)
 
-        test_dataset = datasets.MNIST(root='mnist_data/',
-                                    train=False,
-                                    transform=transforms.ToTensor())
+            test_dataset = datasets.MNIST(root='mnist_data/',
+                                        train=False,
+                                        transform=transforms.ToTensor())
+        except:
+            print('The server is not very responsive, try again')
 
 
 

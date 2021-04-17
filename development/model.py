@@ -43,7 +43,7 @@ print(f'Training MNIST Model on {device}\n{"=" * 44}')
 
 class Model():
     def __init__(self):
-
+        self.batch_size = 30
         self.data_available = False
         print('We are in Model init')
         # self.model = model
@@ -68,14 +68,29 @@ class Model():
         m, s = divmod(time.time() - since, 60)
         print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {device}!')
 
+    def train(epoch):
+        model.train()
+        for batch_idx, (data, target) in enumerate(train_loader):
+            data, target = data.to(device), target.to(device)
+            optimizer.zero_grad()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+            if batch_idx % 10 == 0:
+                print('Train Epoch: {} | Batch Status: {}/{} ({:.0f}%) | Loss: {:.6f}'.format(
+                    epoch, batch_idx * len(data), len(train_loader.dataset),
+                    100. * batch_idx / len(train_loader), loss.item()))
+
+
     def download_data(self):
         try:
-            train_dataset = datasets.MNIST(root='mnist_data/',
+            self.train_dataset = datasets.MNIST(root='mnist_data/',
                                         train=True,
                                         transform=transforms.ToTensor(),
                                         download=True)
 
-            test_dataset = datasets.MNIST(root='mnist_data/',
+            self.test_dataset = datasets.MNIST(root='mnist_data/',
                                         train=False,
                                         transform=transforms.ToTensor())
             print('Completed!')
@@ -85,6 +100,16 @@ class Model():
             print('The server is not very responsive, try again')
             time.sleep(2)
             self.download_data()
+
+    def load_dataset(self):
+        # Data Loader (Input Pipeline)
+            self.train_loader = data.DataLoader(dataset = self.train_dataset,
+                                                batch_size = batch_size,
+                                                shuffle = True)
+
+            self.test_loader = data.DataLoader(dataset = self.test_dataset,
+                                                batch_size = batch_size,
+                                                shuffle = False)
 
 
 

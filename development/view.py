@@ -9,6 +9,7 @@ from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QVBoxLayout, QTextBrows
 from PyQt5.QtGui        import QColor, QIcon, QPainter, QPen, QPixmap
 from PyQt5.QtCore       import QSize, Qt, QBasicTimer
 
+
 class View:
     def __init__(self, Controller):
         print('We are in init of View')
@@ -36,10 +37,12 @@ class drawCanvas(QWidget) :
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         
-        canvas = QPixmap(self.width(),self.height())
-        canvas.fill(QColor("white"))
+        self.canvas = QPixmap(self.width(),self.height())
+        #canvas = QPixmap(400,400)
+
+        self.canvas.fill(QColor("white"))
         self.label = QLabel()
-        self.label.setPixmap(canvas)
+        self.label.setPixmap(self.canvas)
 
         self.layout.addWidget(self.label, 0, 0)
 
@@ -58,8 +61,26 @@ class drawCanvas(QWidget) :
              self.last_y = e.y()
              return # Ignore the first time.
 
+            # rect = self.contentsRect()
+            # pmRect = self.canvas.rect()
+            # if rect != pmRect:
+            # # the pixmap rect is different from that available to the label
+            #     align = self.alignment()
+            # if align & Qt.AlignHCenter:
+            #     # horizontally align the rectangle
+            #     pmRect.moveLeft((rect.width() - pmRect.width()) / 2)
+            # elif align & Qt.AlignRight:
+            #     # align to bottom
+            #     pmRect.moveRight(rect.right())
+            # if align & Qt.AlignVCenter:
+            #     # vertically align the rectangle
+            #     pmRect.moveTop((rect.height() - pmRect.height()) / 2)
+            # elif align & Qt.AlignBottom:
+            #     # align right
+            #     pmRect.moveBottom(rect.bottom())
+
             painter = QPainter(self.label.pixmap())
-            painter.setPen(QPen(Qt.black, 25))
+            painter.setPen(QPen(Qt.black, 20))
             #painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
             painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
 
@@ -71,13 +92,13 @@ class drawCanvas(QWidget) :
             self.last_y = e.y()
 
     def clearCanvas(self):
-        canvas = self.label.pixmap()
-        canvas.fill(QColor("white"))
+        self.canvas = self.label.pixmap()
+        self.canvas.fill(QColor("white"))
         self.update()
     
     def saveImage(self):
         image = self.label.pixmap()
-        #image = image.scaled(20, 20, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
+        image = image.scaled(20, 20, Qt.KeepAspectRatio,Qt.SmoothTransformation)
         image.save("Testfxghfgdcjg.png")
 
 
@@ -92,8 +113,12 @@ class drawCanvas(QWidget) :
 
 class MyApp(QMainWindow):
 
-    def __init__(self, view):
+    def __init__(self, View):
         super().__init__()
+
+        self.Controller = View.Controller
+
+
         print('myapp')
         self.initUI()
 
@@ -132,8 +157,9 @@ class MyApp(QMainWindow):
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(qApp.quit)
 
-        trainAction = QAction("Train", self)
-        trainAction.setStatusTip('Train the Model')
+        train_action = QAction("Train", self)
+        train_action.setStatusTip('Train the Model')
+        train_action.triggered.connect(self.Controller.show_train_dialog)
 
         helpAction = QAction("Docs", self)
         helpAction.setStatusTip('View github docs and instructions')
@@ -146,7 +172,7 @@ class MyApp(QMainWindow):
         #set menu bar options
         menubar = self.menuBar()
         filemenu = menubar.addMenu('&File')
-        filemenu.addAction(trainAction)
+        filemenu.addAction(train_action)
         filemenu.addAction(exitAction)
         
 
@@ -163,7 +189,7 @@ class MyApp(QMainWindow):
     
 
         self.setWindowTitle('Handwritten Digit Recognizer')
-        self.setGeometry(300, 300, 600, 500)
+        self.setGeometry(300, 300, 400, 400)
 
         self.show()
 
@@ -241,10 +267,10 @@ class TrainModelDialog(QWidget):
 
         self.train_btn.setEnabled(False)
         #self.cancel_btn.setCheckable(True)
-        self.download_btn.clicked.connect(self.Controller.start_worker_1)
-        self.train_btn.clicked.connect(self.Controller.start_worker_2)
+        self.download_btn.clicked.connect(self.Controller.start_worker_1_download)
+        self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
-        self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
+        #self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
 
     #hbox for all the buttons
         hbox = QHBoxLayout()
@@ -273,6 +299,8 @@ class TrainModelDialog(QWidget):
         self.move(300, 300)
         self.resize(400, 200)
         self.centre()
+            ### turn off self.show(), move this into a View tab on Main Window
+            ### only use this for quick debugging
         self.show()
 
     
@@ -284,9 +312,10 @@ class TrainModelDialog(QWidget):
         qr.moveCenter(cp)
         self.move(qr.topLeft()) 
 
-    def set_commands(something):
-        self.commands = something
-        print('commands successfully sent!')
+    ### Debugging command to be used internally in View.py, OFF by default!
+    # def set_commands(something):
+    #     self.commands = something
+    #     print('commands successfully sent!')
 
     # def enable_button(self):
     #     if self.train_btn.isChecked():

@@ -23,7 +23,7 @@ class Controller():
         self.thread = {}
 
         self.thread[1] = ThreadClass(self, index = 1)
-        self.thread[2] = ThreadClass(self, index = 2)
+        # self.thread[2] = ThreadClass(self, index = 2)
 
     def main (self):
         print('This is the controller')
@@ -34,9 +34,15 @@ class Controller():
         
         ##self.Model.download_data()
 
+    def show_train_dialog(self):
+        self.View.dialog_view.show()
+
     def activate_train_btn(self):
-        print(self.Model.data_available)
+        #print(self.Model.data_available)
         if self.Model.data_available == True: self.View.dialog_view.train_btn.setEnabled(True)
+
+    def disable_train_btn(self):
+        self.View.dialog_view.train_btn.setEnabled(False)
 
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
@@ -60,25 +66,38 @@ class Controller():
     #         pass
     #         self.View.ex1.train_btn.setEnabled(False)  
 
-    def start_worker_1(self):
-        
-        self.thread[1].start()
+    ##############################     WORKER  #################################################################
+    ############################################################################################################
+    """ All model related tasks are heavy; Hence, we offload it into worker_1
+        to make the main UI more responsive"""
 
+    def start_worker_1_download(self):
+        self.thread[1].set_task("download")
+        self.thread[1].start()
         #self.thread[1].any_signal.connect(self.download_function)
         self.View.dialog_view.download_btn.setEnabled(False)
-
-    def start_worker_2(self):
-        
-        self.thread[2].start()
+    
+    def start_worker_1_train(self):
+        self.thread[1].set_task("train")
+        self.thread[1].start()
         self.View.dialog_view.train_btn.setEnabled(False)
 
     def stop_worker_1(self):
         self.thread[1].stop()
+        
+        
         self.View.dialog_view.download_btn.setEnabled(True)
     
-    def stop_worker_2(self):
-        self.thread[2].stop()
-        self.activate_train_btn()
+    """ Worker 2 is reserved for future features"""
+    # def start_worker_2(self):
+    #     self.thread[2].start()
+    
+    # def stop_worker_2(self):
+    #     self.thread[2].stop()
+
+
+    ##############################################################################################################
+    ##############################################################################################################
 
 class ThreadClass(QThread):
     any_signal = pyqtSignal(int)
@@ -97,35 +116,55 @@ class ThreadClass(QThread):
         # print('Starting Thread')
         # print(self.Controller)
 
-            ## The run command will select the operations based on the index that we passed
-            ## index = 1: download the dataset
-            ## index = 2: train the model
-            ## index = 3: test the model
-            ## index = 4: validate the model --- validate means we use our own digits, not from the MNIST dataset
-
+            ## The run command will select the operations based on the self.task that we passed
+            ## download : download the dataset
+            ## train    : train the model
+            ## test     : test the model
+            ## validate : validate the model --- validate means we use our own digits, not from the MNIST dataset
+        
         if self.index==1:
-            print(self.Controller.thread)
-            print('starting thread 1')    
-            self.Model.download_data()
+                ## Ohhh no!!! Python no case-switch, a dict might be hard to read...
+            if self.task == "download" :
+                self.Controller.disable_train_btn()
+                self.Model.download_data()
+                self.Controller.activate_train_btn()
+
+            elif self.task == "train"    :  
+                time.sleep(5)
+
+            elif self.task == "test"     :  
+                time.sleep(5)
+                
+            elif self.task == "validate" :  
+                time.sleep(5)
+            
+            # print(self.Controller.thread)
+            # print('starting thread 1') 
+            # print(self.task)   
+            # self.Model.download_data()
             
             #self.View.dialog_view.cancel_btn.click()
             #self.finished.connect(self.Controller.stop_worker_1)
             print('closing thread 1')
-            self.View.dialog_view.download_btn.setEnabled(True)
-
-        elif self.index==2:
-            print('starting thread 2')
+            #self.View.dialog_view.download_btn.setEnabled(True)
             
-            time.sleep(50000)
+            #########self.finished.connect(self.Controller.activate_train_btn)
 
-        elif self.index==3:
-            time.sleep(2)
+        # elif self.index==2:
+        #     print('starting thread 2')
+            
+        #     time.sleep(50000)
+
+        # elif self.index==3:
+        #     time.sleep(2)
 
     def stop(self):
         self.is_running = False
         print('Stopping Thread')
         self.terminate()
         
+    def set_task(self, task):
+        self.task = task
 
     def download_dataset(self):
         try:

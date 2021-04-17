@@ -43,6 +43,8 @@ class Model():
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
 
+        self.progress = 0
+        self.epoch_range = 2
         self.max_accuracy = 0
 
         print('We are in Model init')
@@ -57,7 +59,7 @@ class Model():
         print(f'Training MNIST Model on {self.device}\n{"=" * 44}')
         
         since = time.time()
-        for epoch in range(1, 4):
+        for epoch in range(1, self.epoch_range):
             epoch_start = time.time()
             self.train(epoch)
             m, s = divmod(time.time() - epoch_start, 60)
@@ -79,10 +81,11 @@ class Model():
             loss.backward()
             self.optimizer.step()
             if batch_idx % 10 == 0:
+                self.progress += self.batch_size * 10
                 print('Train Epoch: {} | Batch Status: {}/{} ({:.0f}%) | Loss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(self.train_loader.dataset),
                     100. * batch_idx / len(self.train_loader), loss.item()))
-
+                
 
     def download_data(self):
         try:

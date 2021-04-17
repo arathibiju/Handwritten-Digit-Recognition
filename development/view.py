@@ -250,7 +250,26 @@ class TrainModelDialog(QWidget):
         self.pbar = QProgressBar(self)
         self.pbar.setTextVisible(True)
         self.pbar.setAlignment(Qt.AlignCenter)
+        self.pbar.setRange(0, 100)
+        self.pbar.setValue(0)      # Set the progress bar to 0 at the beginning!
 
+        #self.pbar.setAttribute(Qt.WA_StyledBackground)
+        #StyleSheet = "GreenProgressBar::chunk {background-color: #009688;}"
+        #StyleSheet = "QProgressBar""{""border: solid grey;""border-radius: 50px;"" color: black; E0E0E0""}05B8CC"
+        #self.pbar.setStyleSheet(StyleSheet)
+        """ css doesn't work properly, idk why??? """
+        
+        self.pbar.setStyleSheet("QProgressBar"
+                          "{"
+                          "border: solid grey;"
+                          "border-radius: 15px;"
+                          " color: black; "
+                          "}"
+                          "QProgressBar::chunk "
+                          "{background-color: #009688;"
+                          "border-radius :150px;"
+                          "}")
+                          
 
     ### Set the layout for the trainModelDialog window.
     ### Here we use a combination of HBox and VBox
@@ -269,8 +288,9 @@ class TrainModelDialog(QWidget):
         #self.cancel_btn.setCheckable(True)
         self.download_btn.clicked.connect(self.Controller.start_worker_1_download)
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
+        self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
-        #self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
+        self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
 
     #hbox for all the buttons
         hbox = QHBoxLayout()

@@ -33,6 +33,7 @@ class Controller():
         #print(self.View.ex1)
         
         ##self.Model.download_data()
+        
 
     def show_train_dialog(self):
         self.View.dialog_view.show()
@@ -130,11 +131,12 @@ class ThreadClass(QThread):
                 self.Controller.activate_train_btn()
 
             elif self.task == "train"    :  
+                self.Model.main()
                 time.sleep(5)
 
             elif self.task == "test"     :  
                 time.sleep(5)
-                
+
             elif self.task == "validate" :  
                 time.sleep(5)
             

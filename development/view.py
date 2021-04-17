@@ -22,9 +22,9 @@ class View:
         #self.mainloop()
         
         
-        self.ex = MyApp(self)
+        self.main_view = MyApp(self)
         
-        self.ex1 = trainModelDialog(self)
+        self.dialog_view = TrainModelDialog(self)
         #ex1.show()
         # #ex1.hide()
         #sys.exit(app.exec_())
@@ -197,7 +197,7 @@ class MyApp(QMainWindow):
     #     canvas = canvas.scaled(self.width(), self.height(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
     #     self.label.setPixmap(canvas)
 
-class trainModelDialog(QWidget):
+class TrainModelDialog(QWidget):
     def __init__(self, View):
         super().__init__()   
         
@@ -237,12 +237,14 @@ class trainModelDialog(QWidget):
         print(self.View)
         print(self)
 
-        self.download_btn.setCheckable(True)
+        #self.download_btn.setCheckable(True)
 
         self.train_btn.setEnabled(False)
         #self.cancel_btn.setCheckable(True)
         self.download_btn.clicked.connect(self.Controller.start_worker_1)
+        self.train_btn.clicked.connect(self.Controller.start_worker_2)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
+        self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
 
     #hbox for all the buttons
         hbox = QHBoxLayout()

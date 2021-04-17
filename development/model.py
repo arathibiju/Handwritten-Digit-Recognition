@@ -43,6 +43,8 @@ print(f'Training MNIST Model on {device}\n{"=" * 44}')
 
 class Model():
     def __init__(self):
+
+        self.data_available = False
         print('We are in Model init')
         # self.model = model
         
@@ -76,8 +78,13 @@ class Model():
             test_dataset = datasets.MNIST(root='mnist_data/',
                                         train=False,
                                         transform=transforms.ToTensor())
+            print('Completed!')
+            self.data_available = True
+
         except:
             print('The server is not very responsive, try again')
+            time.sleep(2)
+            self.download_data()
 
 
 

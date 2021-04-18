@@ -80,7 +80,7 @@ class drawCanvas(QWidget) :
             #     pmRect.moveBottom(rect.bottom())
 
             painter = QPainter(self.label.pixmap())
-            painter.setPen(QPen(Qt.black, 20))
+            painter.setPen(QPen(Qt.black, 20, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
             #painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
             painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
 

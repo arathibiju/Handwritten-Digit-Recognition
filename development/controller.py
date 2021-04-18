@@ -61,6 +61,7 @@ class Controller():
 
     def clearsomethingthing(self):
         ################.................
+        pass
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
     #def send_command(self):
@@ -172,7 +173,7 @@ class ThreadClass(QThread):
             if self.task == "download" :
                 self.Controller.disable_train_btn()
             ##    self.Controller.thread[2].start()
-                #self.Model.download_data()
+                self.Model.download_data()
                 #self.download_dataset()
                 self.Controller.activate_train_btn()
 

@@ -269,7 +269,7 @@ class TrainModelDialog(QWidget):
                           "{background-color: #009688;"
                           "border-radius :150px;"
                           "}")
-                          
+
 
     ### Set the layout for the trainModelDialog window.
     ### Here we use a combination of HBox and VBox

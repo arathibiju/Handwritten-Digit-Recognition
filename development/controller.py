@@ -55,6 +55,13 @@ class Controller():
     def reset_pbar(self):
         self.View.dialog_view.pbar.setValue(0)
 
+    ######## DIALOG UI STUFF HERE#########
+    def something(self):
+        self.View.dialog_view.text_brower.append("Downloading somethint")
+
+    def clearsomethingthing(self):
+        ################.................
+
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
     #def send_command(self):
         #self.view.set_commands('aaa')
@@ -165,7 +172,8 @@ class ThreadClass(QThread):
             if self.task == "download" :
                 self.Controller.disable_train_btn()
             ##    self.Controller.thread[2].start()
-                self.Model.download_data()
+                #self.Model.download_data()
+                #self.download_dataset()
                 self.Controller.activate_train_btn()
 
             elif self.task == "train":  
@@ -222,7 +230,7 @@ class ThreadClass(QThread):
         
     def download_dataset(self):
         try:
-            train_dataset = datasets.MNIST(root='mnist_data/', download=True)
+            train_dataset = datasets.MNIST(root='mnist_data/', train=False, download=True)
             print('The shit is completed')
         except:
             print('The server is not very responsive, trying to reconnect')

@@ -36,6 +36,7 @@ class Controller():
         
 
     def show_train_dialog(self): self.View.dialog_view.show()
+    def show_train_images_view(self): self.View.train_images_view.show()
     def disable_train_btn(self): self.View.dialog_view.train_btn.setEnabled(False)    
 
     def activate_train_btn(self):
@@ -56,12 +57,17 @@ class Controller():
         self.View.dialog_view.pbar.setValue(0)
 
     ######## DIALOG UI STUFF HERE#########
-    def something(self):
-        self.View.dialog_view.text_brower.append("Downloading somethint")
+    def downloadDialog(self):
+        self.View.dialog_view.text_brower.append("Downloading MINST dataset, please wait for server to respond")
+    
+
+    def trainDialog(self):
+        self.View.dialog_view.text_brower.append("Training....")
+    
 
     def clearsomethingthing(self):
-        ################.................
         pass
+        ################.................
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
     #def send_command(self):
@@ -171,6 +177,7 @@ class ThreadClass(QThread):
         if self.index==1:
                 ## Ohhh no!!! Python no case-switch, a dict might be hard to read...
             if self.task == "download" :
+                
                 self.Controller.disable_train_btn()
             ##    self.Controller.thread[2].start()
                 self.Model.download_data()
@@ -186,10 +193,15 @@ class ThreadClass(QThread):
 
             elif self.task == "validate":  
                 time.sleep(5)
+            
+            
+            
 
             print('closing thread 1')
 
         elif self.index==2:
+            #self.Controller.something()
+
             if self.task == "train":
                 step = 0 
                 while step < self.Controller.View.dialog_view.pbar.maximum():

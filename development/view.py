@@ -26,6 +26,7 @@ class View:
         self.main_view = MyApp(self)
         
         self.dialog_view = TrainModelDialog(self)
+        self.train_images_view = ViewModelImages(self)
         #ex1.show()
         # #ex1.hide()
         #sys.exit(app.exec_())
@@ -34,28 +35,40 @@ class drawCanvas(QWidget) :
     def __init__(self):
         super().__init__()
 
+
+        #set widget in a gridlayout for display
         self.layout = QGridLayout()
         self.setLayout(self.layout)
-        
+        # Initialize the pixmap to be same size as the widget and make it white
         self.canvas = QPixmap(self.width(),self.height())
         #canvas = QPixmap(400,400)
-
         self.canvas.fill(QColor("white"))
+        #assign the pixmap to a Qlabel for display it on the widget
         self.label = QLabel()
         self.label.setPixmap(self.canvas)
+        
 
+        #add QLabel to the layout to display the pixmap
         self.layout.addWidget(self.label, 0, 0)
 
+        #initialize first mouse coordinates for Qpainter
         self.last_x, self.last_y = None, None
 
+        #set minimum size of canvas
         self.setSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding)
         
     def sizeHint(self):
         return QSize(400,300)
         
+        ### tried to fix resize event but instead it creates weird outcome
+    # def paintEvent(self, event):
+    #     painter = QPainter(self)
+    #     painter.drawPixmap(self.rect(), self.canvas)
+
+    #Implemetation of painting logic
     def mouseMoveEvent(self, e):
         
-
+            ## For every new "stroke" ie every new click and drag reset the mouse coordinates
             if self.last_x is None: # First event.
              self.last_x = e.x()
              self.last_y = e.y()
@@ -79,11 +92,15 @@ class drawCanvas(QWidget) :
             #     # align right
             #     pmRect.moveBottom(rect.bottom())
 
+
+            ## set the painter widget to act on the pixmap, set pen and stroke size
             painter = QPainter(self.label.pixmap())
-            painter.setPen(QPen(Qt.black, 20, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.setPen(QPen(Qt.black, 20))
             #painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
+            #draw a line from the current mouse position to the last mouse position
             painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
 
+            #end painting and update window (dependent on screen refresh rate)
             painter.end()
             self.update()
 
@@ -91,22 +108,25 @@ class drawCanvas(QWidget) :
             self.last_x = e.x()
             self.last_y = e.y()
 
+    ## Reset the mouse coordinates every mouse release
+    def mouseReleaseEvent(self, e):
+            
+        self.last_x = None
+        self.last_y = None
+        
+    ## Logic for clear canvas button, simply set the pixmap to be fully white
     def clearCanvas(self):
         self.canvas = self.label.pixmap()
         self.canvas.fill(QColor("white"))
         self.update()
     
+    ## Logic for Saving Image
+    ## Scale down the image to required size, smooth transformation and save as .png
     def saveImage(self):
         image = self.label.pixmap()
         image = image.scaled(20, 20, Qt.KeepAspectRatio,Qt.SmoothTransformation)
-        image.save("Testfxghfgdcjg.png")
+        image.save("SavedTestImage.png")
 
-
-
-    def mouseReleaseEvent(self, e):
-            
-        self.last_x = None
-        self.last_y = None
         
     def resizeEvent(self, event):
         pass
@@ -166,6 +186,7 @@ class MyApp(QMainWindow):
 
         trainImagesAction = QAction("View Training Images", self)
         trainImagesAction.setStatusTip('View Training Images used by the model')
+        trainImagesAction.triggered.connect(self.Controller.show_train_images_view)
         testImagesAction = QAction("View Testing Images", self)
         testImagesAction.setStatusTip('View Testing Images')
 
@@ -287,8 +308,10 @@ class TrainModelDialog(QWidget):
         self.train_btn.setEnabled(False)
         #self.cancel_btn.setCheckable(True)
         self.download_btn.clicked.connect(self.Controller.start_worker_1_download)
+        self.download_btn.clicked.connect(self.Controller.downloadDialog)
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
+        self.train_btn.clicked.connect(self.Controller.trainDialog)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
 
@@ -346,3 +369,56 @@ class TrainModelDialog(QWidget):
     #         self.cancel_btn.setEnabled(False) 
 
     
+class ViewModelImages(QMainWindow):
+    def __init__(self, View):
+        super().__init__()   
+        print("view model dialog init")
+        self.View = View
+        self.Controller = self.View.Controller
+        
+        self.initUI()
+
+    def initUI(self):
+
+    ### Here we use a combination of HBox and VBox
+    #First, define the buttons we want to use
+        self.next_btn = QPushButton('&Next', self)
+        self.prev_btn = QPushButton('&Previous', self)
+        
+
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.prev_btn)
+        hbox.addWidget(self.next_btn)
+
+        vbox  = QVBoxLayout()
+        #vbox.addStretch(4)
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)  
+
+
+        print('hey we are inside initUI dialog')
+        print(self.View)
+        print(self)
+
+        
+    ### Initialise the postion of the trainModelDialog window.
+        # It's not easy to make this tile to be at the centrem
+        # may need to create a custom bar for this
+        self.setWindowTitle('View Training Images')
+        self.move(300, 300)
+        self.resize(400, 200)
+        self.centre()
+            ### turn off self.show(), move this into a View tab on Main Window
+            ### only use this for quick debugging
+        #self.show()
+
+    
+
+    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
+    def centre(self): 
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft()) 

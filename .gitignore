@@ -132,3 +132,6 @@ dmypy.json
 *.gz
 *.pt
 mnist_data/
+
+# Python unused configs
+*.pyc

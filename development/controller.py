@@ -65,8 +65,10 @@ class Controller():
         self.View.dialog_view.text_brower.append("Training....")
     
 
-    def clearsomethingthing(self):
-        pass
+    def clearDialog(self):
+        print("inside this function")
+        self.View.dialog_view.text_brower.clear()
+        
         ################.................
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS

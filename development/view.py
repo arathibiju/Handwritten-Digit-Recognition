@@ -5,8 +5,8 @@
 import sys
 from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog
 from PyQt5.QtWidgets    import QMainWindow, QAction, qApp, QDesktopWidget, QSizePolicy
-from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QVBoxLayout, QTextBrowser, QProgressBar
-from PyQt5.QtGui        import QColor, QIcon, QPainter, QPen, QPixmap
+from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QMenu, QProgressBar, QTextBrowser, QVBoxLayout
+from PyQt5.QtGui        import QColor, QCursor, QIcon, QPainter, QPen, QPixmap, QPixmap
 from PyQt5.QtCore       import QSize, Qt, QBasicTimer
 
 
@@ -263,6 +263,8 @@ class TrainModelDialog(QWidget):
     ### Set up the browser here
         self.text_brower = QTextBrowser()
         self.text_brower.setAcceptRichText(True)
+        self.text_brower.setContextMenuPolicy(Qt.CustomContextMenu)
+
 
     ### Set up the progress bar here
     # Label for the progress bar
@@ -355,6 +357,22 @@ class TrainModelDialog(QWidget):
         qr.moveCenter(cp)
         self.move(qr.topLeft()) 
 
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            self.menu = QMenu()
+            clearAction = QAction("Clear", self)
+            clearAction.triggered.connect(self.Controller.clearDialog)
+            self.menu.addAction(clearAction)
+
+            CopyAction = QAction("Copy", self)
+            self.menu.popup(QCursor.pos())
+
+    
+        print("right button was clicked from menu")
+
+
+ 
+            
     ### Debugging command to be used internally in View.py, OFF by default!
     # def set_commands(something):
     #     self.commands = something
@@ -369,6 +387,62 @@ class TrainModelDialog(QWidget):
     #         self.cancel_btn.setEnabled(False) 
 
     
+class ViewTrainImages(QMainWindow):
+    def __init__(self, View):
+        super().__init__()   
+        print("view model dialog init")
+        self.View = View
+        self.Controller = self.View.Controller
+        
+        self.initUI()
+
+    def initUI(self):
+
+    ### Here we use a combination of HBox and VBox
+    #First, define the buttons we want to use
+        self.next_btn = QPushButton('&Next', self)
+        self.prev_btn = QPushButton('&Previous', self)
+        
+
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.prev_btn)
+        hbox.addWidget(self.next_btn)
+
+        vbox  = QVBoxLayout()
+        #vbox.addStretch(4)
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)  
+
+
+        print('hey we are inside initUI dialog')
+        print(self.View)
+        print(self)
+
+        
+    ### Initialise the postion of the trainModelDialog window.
+        # It's not easy to make this tile to be at the centrem
+        # may need to create a custom bar for this
+        self.setWindowTitle('View Training Images')
+        self.move(300, 300)
+        self.resize(400, 200)
+        self.centre()
+            ### turn off self.show(), move this into a View tab on Main Window
+            ### only use this for quick debugging
+        #self.show()
+
+    
+
+    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
+    def centre(self): 
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft()) 
+
+
+
 class ViewModelImages(QMainWindow):
     def __init__(self, View):
         super().__init__()   

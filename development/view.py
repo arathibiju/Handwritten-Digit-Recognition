@@ -395,57 +395,75 @@ class TrainModelDialog(QWidget):
 class ViewImages(QMainWindow):
     def __init__(self, View):
         super().__init__()   
+
+        ## set up proper inheritance
+
         print("view model dialog init")
         self.View = View
         self.Controller = self.View.Controller
         
+        ## iniialise ui for the main window
         self.initUI()
+        ## create custom widget for the tabs and assign as the central widget
         self.tab_widget = viewImagesTabs()
         self.setCentralWidget(self.tab_widget)
-
+    #general UI init stuff
     def initUI(self):
 
         self.setWindowTitle('View Model Images')
         self.setGeometry(300, 300, 600, 400)
         self.centre()
 
-            ### turn off self.show(), move this into a View tab on Main Window
-            ### only use this for quick debugging
-        #self.show()
-
-
-    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
     def centre(self): 
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft()) 
 
+## subclass for the tab widget
 class viewImagesTabs(QWidget):
     def __init__(self):
         super().__init__()
-        self.layout = QVBoxLayout(self)
-
+        ## assign to a vbox layout. doesnt really matter as long as there is some layout
+        vbox = QVBoxLayout()
+        self.setLayout(vbox)
+    
         # Initialize tab screen
         self.tabs = QTabWidget()
-        self.tab1 = QWidget()
-        self.tab2 = QWidget()
-    
-        # Add tabs to widget
-        self.tabs.addTab(self.tab1, "Training Images")
-        self.tabs.addTab(self.tab2, "Testing Images")
-        
-        # Create first tab
-        #just an example layout for now can change later
-        self.tab1.layout = QVBoxLayout(self)
-        self.label = QLabel()
-        self.label.setText("Example Text")
-        self.tab1.layout.addWidget(self.label)
-        self.tab1.setLayout(self.tab1.layout)
-  
-        # Add tabs to widget
-        self.layout.addWidget(self.tabs)
-        self.setLayout(self.layout)
+        tabs = QTabWidget()
 
+        ## add tabs to widget by calling tab init functions, allowing us to easily customise tabs
+        tabs.addTab(self.TrainImagesUI(), "Training Images")
+        tabs.addTab(self.TestImagesUI(), "Testing Images")
+        ## addd tab widget to the layout to display it
+        vbox.addWidget(tabs)
+
+    ## init the first tab
+    def TrainImagesUI(self):
+        ## create widget and assign to a layout
+        TrainImageTab = QWidget()
+        layout = QVBoxLayout()
+        TrainImageTab.setLayout(layout)
+        ## add example text change this as needed
+        label = QLabel()
+        label.setText("Example Text")
+        layout.addWidget(label)
+        
+        ### Return the tab widget!
+        return TrainImageTab
+
+
+    def TestImagesUI(self):
+        ## create widget and assign to a layout
+        TestImageTab = QWidget()
+        layout = QVBoxLayout()
+        TestImageTab.setLayout(layout)
+        ## add example text change this as needed
+        label = QLabel()
+        label.setText("Example Text")
+        layout.addWidget(label)
+        
+        ### Return the tab widget!
+        return TestImageTab
 
 

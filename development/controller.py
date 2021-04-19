@@ -36,6 +36,7 @@ class Controller():
         
 
     def show_train_dialog(self): self.View.dialog_view.show()
+    def show_train_images_view(self): self.View.train_images_view.show()
     def disable_train_btn(self): self.View.dialog_view.train_btn.setEnabled(False)    
 
     def activate_train_btn(self):

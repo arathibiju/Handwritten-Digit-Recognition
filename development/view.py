@@ -26,6 +26,8 @@ class View:
         self.main_view = MyApp(self)
         
         self.dialog_view = TrainModelDialog(self)
+
+        self.train_images_view = ViewModelImages(self)
         #ex1.show()
         # #ex1.hide()
         #sys.exit(app.exec_())
@@ -185,6 +187,7 @@ class MyApp(QMainWindow):
 
         trainImagesAction = QAction("View Training Images", self)
         trainImagesAction.setStatusTip('View Training Images used by the model')
+        trainImagesAction.triggered.connect(self.Controller.show_train_images_view)
         testImagesAction = QAction("View Testing Images", self)
         testImagesAction.setStatusTip('View Testing Images')
 
@@ -365,5 +368,48 @@ class TrainModelDialog(QWidget):
     #     else:
     #         self.download_btn.setEnabled(False)
     #         self.cancel_btn.setEnabled(False) 
+
+    
+class ViewModelImages(QWidget):
+    def __init__(self, View):
+        super().__init__()   
+        print("view model dialog init")
+        self.View = View
+        self.Controller = self.View.Controller
+        
+        self.initUI()
+
+    def initUI(self):
+
+    ### Here we use a combination of HBox and VBox
+    #First, define the buttons we want to use
+        self.train_btn = QPushButton('&Train', self)
+        self.download_btn = QPushButton('&Download MNIST', self)
+        self.cancel_btn = QPushButton('&Cancel', self)
+
+        print('hey we are inside initUI dialog')
+        print(self.View)
+        print(self)
+
+        
+    ### Initialise the postion of the trainModelDialog window.
+        # It's not easy to make this tile to be at the centrem
+        # may need to create a custom bar for this
+        self.setWindowTitle('Dialog')
+        self.move(300, 300)
+        self.resize(400, 200)
+        self.centre()
+            ### turn off self.show(), move this into a View tab on Main Window
+            ### only use this for quick debugging
+        #self.show()
+
+    
+
+    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
+    def centre(self): 
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft()) 
 
     

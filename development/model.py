@@ -11,15 +11,6 @@ import time
 import matplotlib as plt
 import numpy as np
 
-print('from import ')
-
-# Training settings
-batch_size = 30
-device = 'cuda' if cuda.is_available() else 'cpu'
-print(f'Training MNIST Model on {device}\n{"=" * 44}')
-
-
-
 # # MNIST Dataset
 # train_dataset = datasets.MNIST(root='mnist_data/',
 #                             train=True,
@@ -43,8 +34,19 @@ print(f'Training MNIST Model on {device}\n{"=" * 44}')
 
 class Model():
     def __init__(self):
-
+        self.batch_size = 30
         self.data_available = False
+        self.set_device()
+        #self.load_dataset()
+        self.model = Net()
+        self.model.to(self.device)
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+
+        self.progress = 0
+        self.epoch_range = 2
+        self.max_accuracy = 0
+
         print('We are in Model init')
         # self.model = model
         
@@ -54,31 +56,49 @@ class Model():
 
     def main(self):
         print('We are in Model main')
-
+        print(f'Training MNIST Model on {self.device}\n{"=" * 44}')
+        
         since = time.time()
-        for epoch in range(1, 4):
+        for epoch in range(1, self.epoch_range):
             epoch_start = time.time()
-            train(epoch)
+            self.train(epoch)
             m, s = divmod(time.time() - epoch_start, 60)
             print(f'Training time: {m:.0f}m {s:.0f}s')
-            test()
+            self.test()
             m, s = divmod(time.time() - epoch_start, 60)
             print(f'Testing time: {m:.0f}m {s:.0f}s')
 
         m, s = divmod(time.time() - since, 60)
-        print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {device}!')
+        print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {self.device}!')
+
+    def train(self, epoch):
+        self.model.train()
+        for batch_idx, (data, target) in enumerate(self.train_loader):
+            data, target = data.to(self.device), target.to(self.device)
+            self.optimizer.zero_grad()
+            output = self.model(data)
+            loss = self.criterion(output, target)
+            loss.backward()
+            self.optimizer.step()
+            if batch_idx % 10 == 0:
+                self.progress += self.batch_size * 10
+                print('Train Epoch: {} | Batch Status: {}/{} ({:.0f}%) | Loss: {:.6f}'.format(
+                    epoch, batch_idx * len(data), len(self.train_loader.dataset),
+                    100. * batch_idx / len(self.train_loader), loss.item()))
+                
 
     def download_data(self):
         try:
-            train_dataset = datasets.MNIST(root='mnist_data/',
+            self.train_dataset = datasets.MNIST(root='mnist_data/',
                                         train=True,
                                         transform=transforms.ToTensor(),
                                         download=True)
 
-            test_dataset = datasets.MNIST(root='mnist_data/',
+            self.test_dataset = datasets.MNIST(root='mnist_data/',
                                         train=False,
                                         transform=transforms.ToTensor())
             print('Completed!')
+            self.load_dataset()
             self.data_available = True
 
         except:
@@ -86,8 +106,41 @@ class Model():
             time.sleep(2)
             self.download_data()
 
+    def load_dataset(self):
+        # Data Loader (Input Pipeline)
+            self.train_loader = data.DataLoader(dataset = self.train_dataset,
+                                                batch_size = self.batch_size,
+                                                shuffle = True)
 
+            self.test_loader = data.DataLoader(dataset = self.test_dataset,
+                                                batch_size = self.batch_size,
+                                                shuffle = False)
 
+    def set_device(self):
+        self.device = 'cuda' if cuda.is_available() else 'cpu'
+        
+        
+    def test(self):
+        self.model.eval()
+        test_loss = 0
+        correct = 0
+        self.max_accuracy
+        for data, target in self.test_loader:
+            data, target = data.to(self.device), target.to(self.device)
+            output = self.model(data)
+            # sum up batch loss
+            test_loss += self.criterion(output, target).item()
+            # get the index of the max
+            pred = output.data.max(1, keepdim=True)[1]
+            correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+
+        print(int(correct))
+        print(self.max_accuracy) 
+        test_loss /= len(self.test_loader.dataset)
+        print(f'===========================\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(self.test_loader.dataset)} '
+            f'({100. * correct / len(self.test_loader.dataset):.0f}%)')
+        self.max_accuracy = int(correct) if int(correct) > self.max_accuracy else self.max_accuracy
+        print(f'Max accuracy so far: {self.max_accuracy} \n')
 
 
 class Net(nn.Module):
@@ -146,12 +199,12 @@ class Net(nn.Module):
         return x
 
 
-model = Net()
-model.to(device)
-criterion = nn.CrossEntropyLoss()
+# model = Net()
+# model.to(device)
+# criterion = nn.CrossEntropyLoss()
 #optimizer = optim.SGD(model.parameters(), lr=0.2, momentum=0.5)
 #optimizer = optim.SGD(model.parameters(), lr=0.2)           # SGD with no momentum
-optimizer = optim.Adam(model.parameters(), lr=0.001)       # use either Adam or SGD, doesnt matter.
+# optimizer = optim.Adam(model.parameters(), lr=0.001)       # use either Adam or SGD, doesnt matter.
 
 
 # def train(epoch):

@@ -3,10 +3,18 @@ from torch import nn, optim, cuda
 from torch.utils import data
 from torchvision import datasets, transforms
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
+import torch
+from matplotlib import pyplot
 import time
 
 # Training settings
-batch_size = 32
+batch_size = 60
 device = 'cuda' if cuda.is_available() else 'cpu'
 print(f'Training MNIST Model on {device}\n{"=" * 44}')
 
@@ -22,8 +30,8 @@ test_dataset = datasets.MNIST(root='mnist_data/',
 
 # Data Loader (Input Pipeline)
 train_loader = data.DataLoader(dataset=train_dataset,
-                                           batch_size=batch_size,
-                                           shuffle=True)
+                                           batch_size=100,
+                                           shuffle=False)
 
 test_loader = data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size,
@@ -88,16 +96,73 @@ def test():
           f'({100. * correct / len(test_loader.dataset):.0f}%)')
 
 
-if __name__ == '__main__':
-    since = time.time()
-    for epoch in range(1, 10):
-        epoch_start = time.time()
-        train(epoch)
-        m, s = divmod(time.time() - epoch_start, 60)
-        print(f'Training time: {m:.0f}m {s:.0f}s')
-        test()
-        m, s = divmod(time.time() - epoch_start, 60)
-        print(f'Testing time: {m:.0f}m {s:.0f}s')
 
-    m, s = divmod(time.time() - since, 60)
-    print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {device}!')
+    # since = time.time()
+    # for epoch in range(1, 10):
+    #     epoch_start = time.time()
+    #     train(epoch)
+    #     m, s = divmod(time.time() - epoch_start, 60)
+    #     print(f'Training time: {m:.0f}m {s:.0f}s')
+    #     test()
+    #     m, s = divmod(time.time() - epoch_start, 60)
+    #     print(f'Testing time: {m:.0f}m {s:.0f}s')
+
+    # m, s = divmod(time.time() - since, 60)
+    # print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {device}!')
+
+class MyApp(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+       
+        fig, axis = pyplot.subplots(10, 10, figsize=(4, 4))
+        images, labels = next(iter(train_loader))
+
+
+
+        # for i, ax in enumerate(axis.flat):
+        #     with torch.no_grad():
+        #         image, label = images[i], labels[i]
+        #         ax.imshow(image.view(28, 28), cmap='gray') # add image
+        #         ax.set(title = f"{label}") # add label
+    
+        # plot first few images
+        for i in range(0, 100):
+            # if labels[i] == 1:
+            # define subplot
+            pyplot.subplot(10, 10, i+1)
+            # plot raw pixel data
+            pyplot.axis('off')
+            pyplot.imshow(images[i].reshape(28,28), cmap=pyplot.get_cmap('gray'))
+            #pyplot.imshow(images[i].reshape(28,28), cmap=pyplot.get_cmap('binary'))
+        # # show the figure
+        #pyplot.axis('off')
+        pyplot.savefig("Figure.png")
+        
+        start = time.time()
+        pixmap = QPixmap("Figure.png")
+        end = time.time()
+        print(f'it took {end - start} sec to load an image.')
+        lbl_img = QLabel()
+        lbl_img.setPixmap(pixmap)
+        lbl_size = QLabel('Width: '+str(pixmap.width())+', Height: '+str(pixmap.height()))
+        lbl_size.setAlignment(Qt.AlignCenter)
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(lbl_img)
+        vbox.addWidget(lbl_size)
+        self.setLayout(vbox)
+
+        self.setWindowTitle('QPixmap')
+        self.move(300, 300)
+        self.show()
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = MyApp()
+    sys.exit(app.exec_())
+    

@@ -26,7 +26,8 @@ class View:
         self.main_view = MyApp(self)
         
         self.dialog_view = TrainModelDialog(self)
-        self.train_images_view = ViewImages(self)
+        self.view_images = ViewImages(self)
+        self.view_images_tabs = viewImagesTabs()
         #ex1.show()
         # #ex1.hide()
         #sys.exit(app.exec_())
@@ -186,9 +187,14 @@ class MyApp(QMainWindow):
 
         trainImagesAction = QAction("View Training Images", self)
         trainImagesAction.setStatusTip('View Training Images used by the model')
-        trainImagesAction.triggered.connect(self.Controller.show_train_images_view)
+        trainImagesAction.triggered.connect(self.Controller.show_images_view)
+
         testImagesAction = QAction("View Testing Images", self)
         testImagesAction.setStatusTip('View Testing Images')
+
+        imagesAction = QAction("View Model Images", self)
+        imagesAction.setStatusTip('View the training and testing images used by the model')
+        imagesAction.triggered.connect(self.Controller.show_images_view)
 
         #set menu bar options
         menubar = self.menuBar()
@@ -198,8 +204,9 @@ class MyApp(QMainWindow):
         
 
         viewmenu = menubar.addMenu('&View')
-        viewmenu.addAction(trainImagesAction)
-        viewmenu.addAction(testImagesAction)
+        # viewmenu.addAction(trainImagesAction)
+        # viewmenu.addAction(testImagesAction)
+        viewmenu.addAction(imagesAction)
 
         helpmenu = menubar.addMenu('&Help')
         helpmenu.addAction(helpAction)
@@ -213,32 +220,6 @@ class MyApp(QMainWindow):
         self.setGeometry(300, 300, 400, 400)
 
         self.show()
-
-    # def mouseMoveEvent(self, e):
-        
-
-    #         if self.last_x is None: # First event.
-    #          self.last_x = e.x()
-    #          self.last_y = e.y()
-    #          return # Ignore the first time.
-
-    #         painter = QPainter(self.label.pixmap())
-    #         painter.setPen(QPen(Qt.black, 8))
-    #         painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
-    #         painter.end()
-    #         self.update()
-
-    #         # Update the origin for next time.
-    #         self.last_x = e.x()
-    #         self.last_y = e.y()
-
-
-    # def mouseReleaseEvent(self, e):
-        
-            
-    #     self.last_x = None
-    #     self.last_y = None
-        
     # def resizeEvent(self, event):
     #     canvas = self.label.pixmap()
     #     canvas = canvas.scaled(self.width(), self.height(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -431,10 +412,12 @@ class viewImagesTabs(QWidget):
         # Initialize tab screen
         self.tabs = QTabWidget()
         tabs = QTabWidget()
-
+        tab3 = QWidget()
         ## add tabs to widget by calling tab init functions, allowing us to easily customise tabs
-        tabs.addTab(self.TrainImagesUI(), "Training Images")
-        tabs.addTab(self.TestImagesUI(), "Testing Images")
+        index = tabs.addTab(self.TrainImagesUI(), "Training Images")
+        print(f'index is {index}')
+        index1 = tabs.addTab(self.TestImagesUI(), "Testing Images")
+        print(f'index is {index1}')
         ## addd tab widget to the layout to display it
         vbox.addWidget(tabs)
 

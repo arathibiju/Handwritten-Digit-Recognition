@@ -43,8 +43,10 @@ class Model():
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
 
-        self.progress = 0
         self.epoch_range = 2
+
+        self.progress = 0
+        self.current_accuracy = 0
         self.max_accuracy = 0
 
         print('We are in Model init')
@@ -139,6 +141,7 @@ class Model():
         test_loss /= len(self.test_loader.dataset)
         print(f'===========================\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(self.test_loader.dataset)} '
             f'({100. * correct / len(self.test_loader.dataset):.0f}%)')
+        self.current_accuracy = int(correct)
         self.max_accuracy = int(correct) if int(correct) > self.max_accuracy else self.max_accuracy
         print(f'Max accuracy so far: {self.max_accuracy} \n')
 

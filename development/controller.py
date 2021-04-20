@@ -58,18 +58,27 @@ class Controller():
 
     ######## DIALOG UI STUFF HERE#########
     def downloadDialog(self):
-        self.View.dialog_view.text_brower.append("Downloading MINST dataset, please wait for server to respond")
+        #self.View.dialog_view.text_brower.append("Downloading MINST dataset!!!")
+        self.View.dialog_view.text_browser.append("Completed!!! Dataset is available!")
+
+    def messgage_download_complete(self):
+        self.View.dialog_view.text_browser.append('Download Complete!!! MNIST Dataset is available')
     
 
     def trainDialog(self):
-        self.View.dialog_view.text_brower.append("Training....")
+        self.View.dialog_view.text_browser.append("Training....")
     
 
     def clearDialog(self):
         print("inside this function")
-        self.View.dialog_view.text_brower.clear()
+        self.View.dialog_view.text_browser.clear()
         
+    def dummy_function(self):           #This is a reserved function which can be used for testing purposes
+        return self.Model.current_accuracy
         ################.................
+
+    def enable_download_button(self):
+        self.View.dialog_view.download_btn.setEnabled(True)
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
     #def send_command(self):
@@ -101,7 +110,6 @@ class Controller():
     def start_worker_1_download(self):
         self.thread[1].set_task("download")
         self.thread[1].start()
-        
         #self.thread[1].any_signal.connect(self.download_function)
         self.View.dialog_view.download_btn.setEnabled(False)
     
@@ -140,15 +148,11 @@ class Controller():
         
         self.thread[2].start()
         self.thread[2].pbar_signal.connect(self.pbar_update_slot)
-        
-        
-        
 
     def stop_worker_2(self):
         self.thread[2].stop()
         self.reset_pbar()
         self.Model.progress = 0
-
 
     ##############################################################################################################
     ##############################################################################################################
@@ -179,12 +183,12 @@ class ThreadClass(QThread):
         if self.index==1:
                 ## Ohhh no!!! Python no case-switch, a dict might be hard to read...
             if self.task == "download" :
-                
-                self.Controller.disable_train_btn()
+                self.Controller.disable_train_btn() # may need to organise these code somewhere
             ##    self.Controller.thread[2].start()
                 self.Model.download_data()
                 #self.download_dataset()
-                self.Controller.activate_train_btn()
+                self.Controller.activate_train_btn()    # may need to organise these code somewhere too
+                self.finished.connect(self.Controller.enable_download_button)
 
             elif self.task == "train":  
                 self.Model.main()

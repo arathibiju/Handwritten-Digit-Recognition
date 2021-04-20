@@ -3,7 +3,7 @@
 # ##
 
 import sys
-from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog
+from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog, QComboBox
 from PyQt5.QtWidgets    import QMainWindow, QAction, qApp, QDesktopWidget, QSizePolicy
 from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QMenu, QProgressBar, QTextBrowser, QVBoxLayout
 from PyQt5.QtGui        import QColor, QCursor, QIcon, QPainter, QPen, QPixmap, QPixmap
@@ -261,9 +261,9 @@ class TrainModelDialog(QWidget):
 
     def initUI(self):
     ### Set up the browser here
-        self.text_brower = QTextBrowser()
-        self.text_brower.setAcceptRichText(True)
-        self.text_brower.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.text_browser = QTextBrowser()
+        self.text_browser.setAcceptRichText(True)
+        self.text_browser.setContextMenuPolicy(Qt.CustomContextMenu)
 
 
     ### Set up the progress bar here
@@ -298,21 +298,32 @@ class TrainModelDialog(QWidget):
     ### Here we use a combination of HBox and VBox
     #First, define the buttons we want to use
         self.download_btn = QPushButton('&Download MNIST', self)
-        self.select_model_btn = QPushButton('Select Model', self)   # This is a place holder button
+        #self.select_model_btn = QPushButton('Select Model', self)   # This is a place holder button
         self.load_model_btn = QPushButton('Load Model', self)       # This is a place holder
         self.train_btn = QPushButton('&Train', self)
         self.cancel_btn = QPushButton('&Cancel', self)
+            # One of the button is a combo box so we define it here
+            # This combo box has 2 options, 1 to select the MLP model, 1 for the CNN model
+            # We select the CNN Model by default...
+        self.select_model_cbb1 = QComboBox(self)
+        self.select_model_cbb1.addItem('CNN Model')
+        self.select_model_cbb1.addItem('MLP Model')
+        
 
         print('hey we are inside initUI dialog')
         print(self.View)
         print(self)
-
+    ############# Configuring the initial states of all of the buttons
         #self.download_btn.setCheckable(True)
 
+        self.select_model_cbb1.setEnabled(False)
+        self.load_model_btn.setEnabled(False)
         self.train_btn.setEnabled(False)
         #self.cancel_btn.setCheckable(True)
+
+
         self.download_btn.clicked.connect(self.Controller.start_worker_1_download)
-        self.download_btn.clicked.connect(self.Controller.downloadDialog)
+        #self.download_btn.clicked.connect(self.Controller.downloadDialog)   # This signal need to be moved to somewhere too, not here
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
         #self.train_btn.clicked.connect(self.Controller.trainDialog)        #Turn this off for testing purpose
@@ -323,7 +334,7 @@ class TrainModelDialog(QWidget):
         hbox = QHBoxLayout()
         #hbox.addStretch(0)
         hbox.addWidget(self.download_btn)
-        hbox.addWidget(self.select_model_btn)
+        hbox.addWidget(self.select_model_cbb1)
         hbox.addWidget(self.load_model_btn)
         hbox.addWidget(self.train_btn)
         hbox.addWidget(self.cancel_btn)
@@ -335,7 +346,7 @@ class TrainModelDialog(QWidget):
       
         vbox  = QVBoxLayout()
         #vbox.addStretch(4)
-        vbox.addWidget(self.text_brower)
+        vbox.addWidget(self.text_browser)
         vbox.addLayout(hbox2)
         vbox.addLayout(hbox)
 

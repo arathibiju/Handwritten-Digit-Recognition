@@ -30,7 +30,7 @@ test_dataset = datasets.MNIST(root='mnist_data/',
 
 # Data Loader (Input Pipeline)
 train_loader = data.DataLoader(dataset=train_dataset,
-                                           batch_size=100,
+                                           batch_size=batch_size,
                                            shuffle=False)
 
 test_loader = data.DataLoader(dataset=test_dataset,
@@ -117,9 +117,10 @@ class MyApp(QWidget):
         self.initUI()
 
     def initUI(self):
-       
-        fig, axis = pyplot.subplots(10, 10, figsize=(4, 4))
-        images, labels = next(iter(train_loader))
+        start = time.time()
+        fig, axis = pyplot.subplots(2, 5, figsize=(6, 6))
+        # print(len(test_loader))
+        # images, labels = next(iter(test_loader))
 
 
 
@@ -130,16 +131,17 @@ class MyApp(QWidget):
         #         ax.set(title = f"{label}") # add label
     
         # plot first few images
-        for i in range(0, 100):
-            # if labels[i] == 1:
-            # define subplot
-            pyplot.subplot(10, 10, i+1)
-            # plot raw pixel data
-            pyplot.axis('off')
-            pyplot.imshow(images[i].reshape(28,28), cmap=pyplot.get_cmap('gray'))
-            #pyplot.imshow(images[i].reshape(28,28), cmap=pyplot.get_cmap('binary'))
-        # # show the figure
-        #pyplot.axis('off')
+        x = 0
+        for i in range (0, 9999):
+            labels = test_dataset[i][1]
+            if (labels != 10 and x<10):
+                pyplot.subplot(2, 5, x+1)
+                pyplot.axis('off')
+                img = test_dataset[i][0]
+        
+                pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('gray'))
+                x += 1
+
         pyplot.savefig("Figure.png")
         
         start = time.time()

@@ -386,7 +386,7 @@ class TrainModelDialog(QWidget):
     #         self.download_btn.setEnabled(False)
     #         self.cancel_btn.setEnabled(False) 
 
-    
+
 class ViewTrainImages(QMainWindow):
     def __init__(self, View):
         super().__init__()   

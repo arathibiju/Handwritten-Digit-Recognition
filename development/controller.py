@@ -47,6 +47,7 @@ class Controller():
         self.View.dialog_view.pbar.setValue(int(msg))
         if self.View.dialog_view.pbar.value() ==  self.View.dialog_view.pbar.maximum():   
             self.View.dialog_view.pbar.setValue(self.View.dialog_view.pbar.maximum())
+            
 
     def pbar_train_mode(self):
         self.View.dialog_view.pbar.setMinimum(0)
@@ -79,6 +80,39 @@ class Controller():
 
     def enable_download_button(self):
         self.View.dialog_view.download_btn.setEnabled(True)
+
+    def show_images_view(self): 
+        self.View.view_images.show()
+        self.View.view_images_tabs.tabs.setCurrentIndex(1)
+        print("pls work")
+
+    ######## SOME CORE STUFF HERE #########
+    
+    def someshitfunction(self):
+        #shitfunction needs to do someth
+        start = time.time()
+        fig, axis = pyplot.subplots(3, 5, figsize=(6, 6))
+
+        x = 0
+        for i in range (0, 9999):
+            labels = test_dataset[i][1]
+            if (labels != 10 and x<15):
+                pyplot.subplot(3, 5, x+1)
+                pyplot.axis('off')
+                img = test_dataset[i][0]
+        
+                pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('gray'))
+                x += 1
+
+        pyplot.savefig("Figure.png")
+        pixmap = QPixmap("Figure.png")      # Load a pixmap here, need place to store it
+
+        #self.View.view_images_tabs.s
+        end = time.time()
+
+
+        pass
+
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
     #def send_command(self):

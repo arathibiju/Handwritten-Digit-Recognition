@@ -118,8 +118,8 @@ class MyApp(QWidget):
 
     def initUI(self):
         start = time.time()
-        fig, axis = pyplot.subplots(2, 5, figsize=(6, 6))
-        # print(len(test_loader))
+        fig, axis = pyplot.subplots(3, 5, figsize=(6, 6))
+        print(train_loader)
         # images, labels = next(iter(test_loader))
 
 
@@ -134,8 +134,8 @@ class MyApp(QWidget):
         x = 0
         for i in range (0, 9999):
             labels = test_dataset[i][1]
-            if (labels != 10 and x<10):
-                pyplot.subplot(2, 5, x+1)
+            if (labels == 2 and x<15):
+                pyplot.subplot(3, 5, x+1)
                 pyplot.axis('off')
                 img = test_dataset[i][0]
         

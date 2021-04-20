@@ -4,10 +4,10 @@
 
 import sys
 from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog, QComboBox
-from PyQt5.QtWidgets    import QMainWindow, QAction, qApp, QDesktopWidget, QSizePolicy
+from PyQt5.QtWidgets    import QMainWindow, QAction, qApp, QDesktopWidget, QSizePolicy, QTabWidget
 from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QMenu, QProgressBar, QTextBrowser, QVBoxLayout
 from PyQt5.QtGui        import QColor, QCursor, QIcon, QPainter, QPen, QPixmap, QPixmap
-from PyQt5.QtCore       import QSize, Qt, QBasicTimer
+from PyQt5.QtCore       import QSize, Qt, QBasicTimer 
 
 
 class View:
@@ -26,7 +26,8 @@ class View:
         self.main_view = MyApp(self)
         
         self.dialog_view = TrainModelDialog(self)
-        self.train_images_view = ViewModelImages(self)
+        self.view_images = ViewImages(self)
+        self.view_images_tabs = viewImagesTabs()
         #ex1.show()
         # #ex1.hide()
         #sys.exit(app.exec_())
@@ -186,9 +187,16 @@ class MyApp(QMainWindow):
 
         trainImagesAction = QAction("View Training Images", self)
         trainImagesAction.setStatusTip('View Training Images used by the model')
-        trainImagesAction.triggered.connect(self.Controller.show_train_images_view)
+        trainImagesAction.triggered.connect(self.Controller.show_images_view)
         testImagesAction = QAction("View Testing Images", self)
         testImagesAction.setStatusTip('View Testing Images')
+
+
+        imagesAction = QAction("View Model Images", self)
+        imagesAction.setStatusTip('View the training and testing images used by the model')
+        imagesAction.triggered.connect(self.Controller.show_images_view)
+
+
 
         #set menu bar options
         menubar = self.menuBar()
@@ -198,8 +206,11 @@ class MyApp(QMainWindow):
         
 
         viewmenu = menubar.addMenu('&View')
-        viewmenu.addAction(trainImagesAction)
-        viewmenu.addAction(testImagesAction)
+        # viewmenu.addAction(trainImagesAction)
+        # viewmenu.addAction(testImagesAction)
+        viewmenu.addAction(imagesAction)
+        # viewmenu.addAction(trainImagesAction)
+        # viewmenu.addAction(testImagesAction)
 
         helpmenu = menubar.addMenu('&Help')
         helpmenu.addAction(helpAction)
@@ -379,7 +390,14 @@ class TrainModelDialog(QWidget):
             clearAction.triggered.connect(self.Controller.clearDialog)
             self.menu.addAction(clearAction)
 
-            CopyAction = QAction("Copy", self)
+            copyAction = QAction("Copy", self)
+            copyAction.setStatusTip('Copy text')
+            copyAction.triggered.connect(self.text_brower.copy)
+            copyAction.setShortcut('Ctrl+Q')
+
+            self.menu.addAction(copyAction)
+
+
             self.menu.popup(QCursor.pos())
 
     
@@ -402,7 +420,7 @@ class TrainModelDialog(QWidget):
     #         self.cancel_btn.setEnabled(False) 
 
 
-class ViewTrainImages(QMainWindow):
+class ViewImages(QMainWindow):
     def __init__(self, View):
         super().__init__()   
         print("view model dialog init")
@@ -410,43 +428,14 @@ class ViewTrainImages(QMainWindow):
         self.Controller = self.View.Controller
         
         self.initUI()
+                ## create custom widget for the tabs and assign as the central widget
+        self.tab_widget = viewImagesTabs()
+        self.setCentralWidget(self.tab_widget)
 
     def initUI(self):
-
-    ### Here we use a combination of HBox and VBox
-    #First, define the buttons we want to use
-        self.next_btn = QPushButton('&Next', self)
-        self.prev_btn = QPushButton('&Previous', self)
-        
-
-
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.prev_btn)
-        hbox.addWidget(self.next_btn)
-
-        vbox  = QVBoxLayout()
-        #vbox.addStretch(4)
-        vbox.addLayout(hbox)
-
-        self.setLayout(vbox)  
-
-
-        print('hey we are inside initUI dialog')
-        print(self.View)
-        print(self)
-
-        
-    ### Initialise the postion of the trainModelDialog window.
-        # It's not easy to make this tile to be at the centrem
-        # may need to create a custom bar for this
-        self.setWindowTitle('View Training Images')
-        self.move(300, 300)
-        self.resize(400, 200)
-        self.centre()
-            ### turn off self.show(), move this into a View tab on Main Window
-            ### only use this for quick debugging
-        #self.show()
-
+        self.setWindowTitle('View Model Images')
+        self.setGeometry(300, 300, 600, 400)
+   
     
 
     ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
@@ -457,57 +446,110 @@ class ViewTrainImages(QMainWindow):
         self.move(qr.topLeft()) 
 
 
+'''
+    # class ViewModelImages(QMainWindow):
+    #     def __init__(self, View):
+    #         super().__init__()   
+    #         print("view model dialog init")
+    #         self.View = View
+    #         self.Controller = self.View.Controller
+            
+    #         self.initUI()
 
-class ViewModelImages(QMainWindow):
-    def __init__(self, View):
-        super().__init__()   
-        print("view model dialog init")
-        self.View = View
-        self.Controller = self.View.Controller
+    #     def initUI(self):
+
+    #     ### Here we use a combination of HBox and VBox
+    #     #First, define the buttons we want to use
+    #         self.next_btn = QPushButton('&Next', self)
+    #         self.prev_btn = QPushButton('&Previous', self)
+            
+
+
+    #         hbox = QHBoxLayout()
+    #         hbox.addWidget(self.prev_btn)
+    #         hbox.addWidget(self.next_btn)
+
+    #         vbox  = QVBoxLayout()
+    #         #vbox.addStretch(4)
+    #         vbox.addLayout(hbox)
+
+    #         self.setLayout(vbox)  
+
+
+    #         print('hey we are inside initUI dialog')
+    #         print(self.View)
+    #         print(self)
+
+            
+    #     ### Initialise the postion of the trainModelDialog window.
+    #         # It's not easy to make this tile to be at the centrem
+    #         # may need to create a custom bar for this
+    #         self.setWindowTitle('View Training Images')
+    #         self.move(300, 300)
+    #         self.resize(400, 200)
+    #         self.centre()
+    #             ### turn off self.show(), move this into a View tab on Main Window
+    #             ### only use this for quick debugging
+    #         #self.show()
+
         
-        self.initUI()
 
-    def initUI(self):
+    #     ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
+    #     def centre(self): 
+    #         qr = self.frameGeometry()
+    #         cp = QDesktopWidget().availableGeometry().center()
+    #         qr.moveCenter(cp)
+    #         self.move(qr.topLeft()) 
 
-    ### Here we use a combination of HBox and VBox
-    #First, define the buttons we want to use
-        self.next_btn = QPushButton('&Next', self)
-        self.prev_btn = QPushButton('&Previous', self)
-        
-
-
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.prev_btn)
-        hbox.addWidget(self.next_btn)
-
-        vbox  = QVBoxLayout()
-        #vbox.addStretch(4)
-        vbox.addLayout(hbox)
-
-        self.setLayout(vbox)  
+'''
 
 
-        print('hey we are inside initUI dialog')
-        print(self.View)
-        print(self)
+## subclass for the tab widget
+class viewImagesTabs(QWidget):
+    def __init__(self):
+        super().__init__()
+        ## assign to a vbox layout. doesnt really matter as long as there is some layout
+        vbox = QVBoxLayout()
+        self.setLayout(vbox)
+       
+        # Initialize tab screen
+        self.tabs = QTabWidget()
+        #tabs = QTabWidget()
+        #tab3 = QWidget()
+        ## add tabs to widget by calling tab init functions, allowing us to easily customise tabs
+        index = self.tabs.addTab(self.TrainImagesUI(), "Training Images")
+        print(f'index is {index}')
+        index1 = self.tabs.addTab(self.TestImagesUI(), "Testing Images")
+        print(f'index is {index1}')
+        ## addd tab widget to the layout to display it
+        vbox.addWidget(self.tabs)
 
-        
-    ### Initialise the postion of the trainModelDialog window.
-        # It's not easy to make this tile to be at the centrem
-        # may need to create a custom bar for this
-        self.setWindowTitle('View Training Images')
-        self.move(300, 300)
-        self.resize(400, 200)
-        self.centre()
-            ### turn off self.show(), move this into a View tab on Main Window
-            ### only use this for quick debugging
-        #self.show()
+    ## init the first tab
+    def TrainImagesUI(self):
+        ## create widget and assign to a layout
+        TrainImageTab = QWidget()
+        layout = QVBoxLayout()
+        TrainImageTab.setLayout(layout)
+        ## add example text change this as needed
+        self.label = QLabel()
+        #label.setText("Example Text")
+        #lbl_img.setPixmap(pixmap)
+        self.label.setPixmap(QPixmap("Figure.png"))
+        layout.addWidget(self.label)
 
-    
+        ### Return the tab widget!
+        return TrainImageTab
 
-    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
-    def centre(self): 
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft()) 
+
+    def TestImagesUI(self):
+        ## create widget and assign to a layout
+        TestImageTab = QWidget()
+        layout = QVBoxLayout()
+        TestImageTab.setLayout(layout)
+        ## add example text change this as needed
+        label = QLabel()
+        label.setText("Example Text")
+        layout.addWidget(label)
+
+        ### Return the tab widget!
+        return TestImageTab

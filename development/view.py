@@ -297,8 +297,10 @@ class TrainModelDialog(QWidget):
     ### Set the layout for the trainModelDialog window.
     ### Here we use a combination of HBox and VBox
     #First, define the buttons we want to use
-        self.train_btn = QPushButton('&Train', self)
         self.download_btn = QPushButton('&Download MNIST', self)
+        self.select_model_btn = QPushButton('Select Model', self)   # This is a place holder button
+        self.load_model_btn = QPushButton('Load Model', self)       # This is a place holder
+        self.train_btn = QPushButton('&Train', self)
         self.cancel_btn = QPushButton('&Cancel', self)
 
         print('hey we are inside initUI dialog')
@@ -313,7 +315,7 @@ class TrainModelDialog(QWidget):
         self.download_btn.clicked.connect(self.Controller.downloadDialog)
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
-        self.train_btn.clicked.connect(self.Controller.trainDialog)
+        #self.train_btn.clicked.connect(self.Controller.trainDialog)        #Turn this off for testing purpose
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
 
@@ -321,6 +323,8 @@ class TrainModelDialog(QWidget):
         hbox = QHBoxLayout()
         #hbox.addStretch(0)
         hbox.addWidget(self.download_btn)
+        hbox.addWidget(self.select_model_btn)
+        hbox.addWidget(self.load_model_btn)
         hbox.addWidget(self.train_btn)
         hbox.addWidget(self.cancel_btn)
 

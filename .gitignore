@@ -131,7 +131,9 @@ dmypy.json
 # MNIST dataset 
 *.gz
 *.pt
+*.pyc
 mnist_data/
 
 # Python unused configs
+*.pyc
 *.pyc

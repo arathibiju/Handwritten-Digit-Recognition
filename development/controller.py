@@ -4,19 +4,23 @@
 import sys
 import time
 from PyQt5.QtWidgets    import QApplication
-from PyQt5.QtCore       import QThread, pyqtSignal 
-from torchvision import datasets, transforms, models
+from PyQt5.QtCore       import QThread, pyqtSignal, QObject, Qt 
+from torchvision        import datasets, transforms, models
+from matplotlib         import pyplot
 
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore   import *
+from PyQt5.QtGui    import *
 
 from model import Model
 from view import View
 
 
-class Controller():
+class Controller(QObject):
     def __init__(self):
-        super().__init__()
+        super(Controller, self).__init__()
 
-        self.random_value = 6
+        self.current_value = 0
         
         self.Model = Model()
         self.View = View(self)
@@ -28,19 +32,19 @@ class Controller():
     def main (self):
         print('This is the controller')
         self.View.main()
-        self.activate_train_btn()
+        self.enable_train_btn()
         #self.send_command()
         #print(self.View.ex1)
         
         ##self.Model.download_data()
         
 
-    def show_train_dialog(self): self.View.dialog_view.show()
-    def show_train_images_view(self): self.View.train_images_view.show()
-    def disable_train_btn(self): self.View.dialog_view.train_btn.setEnabled(False)    
-
-    def activate_train_btn(self):
-        #print(self.Model.data_available)
+    def show_train_dialog(self):        self.View.dialog_view.show()
+    def show_train_images_view(self):   self.View.train_images_view.show()
+    def disable_train_btn(self):        self.View.dialog_view.train_btn.setEnabled(False) 
+    def disable_download_btn(self):     self.View.dialog_view.download_btn.setEnabled(False)
+    def enable_download_button(self):   self.View.dialog_view.download_btn.setEnabled(True) 
+    def enable_train_btn(self):
         if self.Model.data_available == True: self.View.dialog_view.train_btn.setEnabled(True)
 
     def pbar_update_slot(self, msg):
@@ -48,26 +52,35 @@ class Controller():
         if self.View.dialog_view.pbar.value() ==  self.View.dialog_view.pbar.maximum():   
             self.View.dialog_view.pbar.setValue(self.View.dialog_view.pbar.maximum())
             
-
     def pbar_train_mode(self):
         self.View.dialog_view.pbar.setMinimum(0)
         total_steps =int(60000  * (self.Model.epoch_range - 1)) 
         self.View.dialog_view.pbar.setMaximum(total_steps)
 
     def reset_pbar(self):
+        print('get here')
         self.View.dialog_view.pbar.setValue(0)
 
     ######## DIALOG UI STUFF HERE#########
     def downloadDialog(self):
-        #self.View.dialog_view.text_brower.append("Downloading MINST dataset!!!")
-        self.View.dialog_view.text_browser.append("Completed!!! Dataset is available!")
+        print('check if get here')
+        print('check time call')
+        self.View.dialog_view.text_browser.append("Downloading MINST dataset!!!")
+        #self.View.dialog_view.text_browser.append("Completed!!! Dataset is available!")
 
-    def messgage_download_complete(self):
+    def trainDialog(self):  self.View.dialog_view.text_browser.append("Training....")
+        
+
+    def message_download_complete(self):
+        self.thread[1].disconnect()
         self.View.dialog_view.text_browser.append('Download Complete!!! MNIST Dataset is available')
-    
+        self.enable_train_btn()
+        self.enable_download_button()
+        time.sleep(0.1)
 
-    def trainDialog(self):
-        self.View.dialog_view.text_browser.append("Training....")
+
+    def message_training_complete(self):
+        self.thread[1].disconnect()
     
 
     def clearDialog(self):
@@ -78,40 +91,64 @@ class Controller():
         return self.Model.current_accuracy
         ################.................
 
-    def enable_download_button(self):
-        self.View.dialog_view.download_btn.setEnabled(True)
+
+ 
 
     def show_images_view(self): 
         self.View.view_images.show()
-        self.View.view_images_tabs.tabs.setCurrentIndex(1)
+        #self.View.view_images_tabs.tabs.setCurrentIndex(1)
         print("pls work")
 
     ######## SOME CORE STUFF HERE #########
+    def train_next_page (self):
+        
+        self.load_image(self.current_value)
+        self.current_value += 1
+
+    def train_prev_page (self):
+        print('hey')
+        self.View.view_images.tab_widget.view_train_images.update_image()
+
+    def test_next_page (self):
+        pass
+
+    def test_prev_page (self):
+        pass
     
-    def someshitfunction(self):
+    def load_image(self, index):
         #shitfunction needs to do someth
         start = time.time()
-        fig, axis = pyplot.subplots(3, 5, figsize=(6, 6))
-
+        fig, axis = pyplot.subplots(10, 10, figsize=(4, 4))
+        print('check if load image')
+        self.batch = index * 100
         x = 0
+        current_batch = 0
         for i in range (0, 9999):
-            labels = test_dataset[i][1]
-            if (labels != 10 and x<15):
-                pyplot.subplot(3, 5, x+1)
-                pyplot.axis('off')
-                img = test_dataset[i][0]
+            #print('loop')
+            labels = self.Model.test_dataset[i][1]
+            #print(self.batch)
+            if ((labels !=10) and  current_batch > self.batch and current_batch < (self.batch + 100)):
+                print("We Made it")
+                if (labels !=10 and x<100):
+                    pyplot.subplot(10, 10, x+1)
+                    pyplot.axis('off')
+                    img = self.Model.test_dataset[i][0]
+                    #print(img)
+                    pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('binary'))
+                    x += 1
+
+            current_batch += 1
+        print('check start saving')
+        pyplot.savefig("Test.png")
+        pixmap = QPixmap("Test.png")      # Load a pixmap here, need place to store it
         
-                pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('gray'))
-                x += 1
-
-        pyplot.savefig("Figure.png")
-        pixmap = QPixmap("Figure.png")      # Load a pixmap here, need place to store it
-
-        #self.View.view_images_tabs.s
+        #self.View.view_images.tab_widget.view_train_images.clear()
+        #self.View.view_images.tab_widget.view_train_images.setPixmap(pixmap)
+        self.View.view_images.tab_widget.view_train_images.update_image()
         end = time.time()
 
-
-        pass
+        print(f'it took {end - start} sec to make an image.')
+        
 
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
@@ -143,26 +180,32 @@ class Controller():
 
     def start_worker_1_download(self):
         self.thread[1].set_task("download")
+        self.thread[1].started.connect(self.downloadDialog)
+        self.thread[1].finished.connect(self.message_download_complete)
+        self.disable_train_btn()
+        self.disable_download_btn()
         self.thread[1].start()
-        #self.thread[1].any_signal.connect(self.download_function)
-        self.View.dialog_view.download_btn.setEnabled(False)
-    
+
     def start_worker_1_train(self):
         self.pbar_train_mode()
         self.thread[1].set_task("train")
-        #self.thread[1].started.connect(self.pbar_train_mode)
+        self.thread[1].started.connect(self.pbar_train_mode)
+        self.thread[1].started.connect(self.trainDialog)
         
+        self.thread[1].finished.connect(self.message_training_complete)
         self.thread[1].start()
         
 
         print(self.View.dialog_view.pbar.maximum())
         #self.thread[1].started.connect(self.start_worker_2_train)
         self.View.dialog_view.train_btn.setEnabled(False)
+       
 
     def stop_worker_1(self):
         self.thread[1].stop()
-
-        self.View.dialog_view.download_btn.setEnabled(True)
+        self.enable_train_btn()
+        self.enable_train_btn()
+        
     
     """ Worker 2 is reserved for future features"""
 
@@ -179,31 +222,33 @@ class Controller():
     def start_worker_2_train(self):
         print('trying to start thread 2')
         self.thread[2].set_task("train")
-        
-        self.thread[2].start()
         self.thread[2].pbar_signal.connect(self.pbar_update_slot)
+        self.thread[2].start()
+        
 
     def stop_worker_2(self):
+
         self.thread[2].stop()
-        self.reset_pbar()
         self.Model.progress = 0
+        self.reset_pbar()
 
     ##############################################################################################################
     ##############################################################################################################
 
 class ThreadClass(QThread):
     pbar_signal = pyqtSignal(int)
+    data_available_signal = pyqtSignal(int)
     def __init__(self, Controller, index = 0):
         super(ThreadClass, self).__init__()
             # Here we are passing the MVC classes for multithreading!!!
             # Operations related to the Model will be processed here in the background
         self.Model = Controller.Model
-        #self.View = Controller.View
+        self.View = Controller.View
         self.Controller = Controller
         
         self.is_running = True
         self.index = index
-
+        print('Start fucking QTHREAD')
     def run(self):
         # print('Starting Thread')
         # print(self.Controller)
@@ -217,16 +262,12 @@ class ThreadClass(QThread):
         if self.index==1:
                 ## Ohhh no!!! Python no case-switch, a dict might be hard to read...
             if self.task == "download" :
-                self.Controller.disable_train_btn() # may need to organise these code somewhere
-            ##    self.Controller.thread[2].start()
                 self.Model.download_data()
                 #self.download_dataset()
-                self.Controller.activate_train_btn()    # may need to organise these code somewhere too
-                self.finished.connect(self.Controller.enable_download_button)
 
-            elif self.task == "train":  
-                self.Model.main()
+            elif self.task == "train": 
                 
+                self.Model.main() 
 
             elif self.task == "test":  
                 time.sleep(5)
@@ -237,7 +278,7 @@ class ThreadClass(QThread):
             
             
 
-            print('closing thread 1')
+            
 
         elif self.index==2:
             #self.Controller.something()
@@ -275,6 +316,7 @@ class ThreadClass(QThread):
         #     time.sleep(2)
 
     def stop(self):
+        
         self.is_running = False
         print('Stopping Thread')
         self.terminate()

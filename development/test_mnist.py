@@ -118,8 +118,8 @@ class MyApp(QWidget):
 
     def initUI(self):
         start = time.time()
-        fig, axis = pyplot.subplots(3, 5, figsize=(6, 6))
-        print(train_loader)
+        fig, axis = pyplot.subplots(8, 8, figsize=(4, 4))
+       
         # images, labels = next(iter(test_loader))
 
 
@@ -134,18 +134,18 @@ class MyApp(QWidget):
         x = 0
         for i in range (0, 9999):
             labels = test_dataset[i][1]
-            if (labels == 2 and x<15):
-                pyplot.subplot(3, 5, x+1)
+            if (labels !=10 and x<64 ):
+                pyplot.subplot(8, 8, x+1)
                 pyplot.axis('off')
                 img = test_dataset[i][0]
         
-                pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('gray'))
+                pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('binary'))
                 x += 1
 
-        pyplot.savefig("Figure.png")
+        pyplot.savefig("testmnist.png")
         
-        start = time.time()
-        pixmap = QPixmap("Figure.png")
+        
+        pixmap = QPixmap("testmnist.png")
         end = time.time()
         print(f'it took {end - start} sec to load an image.')
         lbl_img = QLabel()

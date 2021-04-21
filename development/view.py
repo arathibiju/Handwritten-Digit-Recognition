@@ -5,7 +5,7 @@
 import sys
 from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog, QComboBox
 from PyQt5.QtWidgets    import QMainWindow, QAction, qApp, QDesktopWidget, QSizePolicy, QTabWidget
-from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QMenu, QProgressBar, QTextBrowser, QVBoxLayout
+from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QMenu, QProgressBar, QTextBrowser, QVBoxLayout, QScrollArea
 from PyQt5.QtGui        import QColor, QCursor, QIcon, QPainter, QPen, QPixmap, QPixmap
 from PyQt5.QtCore       import QSize, Qt, QBasicTimer 
 
@@ -27,7 +27,8 @@ class View:
         
         self.dialog_view = TrainModelDialog(self)
         self.view_images = ViewImages(self)
-        self.view_images_tabs = viewImagesTabs()
+        self.view_images_tabs = viewImagesTabs(self)
+
         #ex1.show()
         # #ex1.hide()
         #sys.exit(app.exec_())
@@ -266,7 +267,7 @@ class TrainModelDialog(QWidget):
         print('This is the controller inside the dialog')
         print(self.View.Controller)
         print(self.Controller)
-        print(self.View.Controller.random_value)
+        #print(self.View.Controller.random_value)
         
         self.initUI()
 
@@ -392,7 +393,7 @@ class TrainModelDialog(QWidget):
 
             copyAction = QAction("Copy", self)
             copyAction.setStatusTip('Copy text')
-            copyAction.triggered.connect(self.text_brower.copy)
+            copyAction.triggered.connect(self.text_browser.copy)
             copyAction.setShortcut('Ctrl+Q')
 
             self.menu.addAction(copyAction)
@@ -428,13 +429,17 @@ class ViewImages(QMainWindow):
         self.Controller = self.View.Controller
         
         self.initUI()
-                ## create custom widget for the tabs and assign as the central widget
-        self.tab_widget = viewImagesTabs()
-        self.setCentralWidget(self.tab_widget)
 
     def initUI(self):
+
+        ### Initiliase the layout of the ViewImages Window
+             ## create custom widget for the tabs and assign as the central widget
+        self.tab_widget = viewImagesTabs(self)
+        self.setCentralWidget(self.tab_widget)
+
         self.setWindowTitle('View Model Images')
         self.setGeometry(300, 300, 600, 400)
+        self.centre()
    
     
 
@@ -503,21 +508,24 @@ class ViewImages(QMainWindow):
 
 '''
 
-
 ## subclass for the tab widget
 class viewImagesTabs(QWidget):
-    def __init__(self):
+    def __init__(self, View):
         super().__init__()
+        self.View = View
+        self.Controller = self.View.Controller 
+
         ## assign to a vbox layout. doesnt really matter as long as there is some layout
         vbox = QVBoxLayout()
         self.setLayout(vbox)
        
         # Initialize tab screen
         self.tabs = QTabWidget()
+        self.view_train_images = ViewTrainImages(self)
         #tabs = QTabWidget()
         #tab3 = QWidget()
         ## add tabs to widget by calling tab init functions, allowing us to easily customise tabs
-        index = self.tabs.addTab(self.TrainImagesUI(), "Training Images")
+        index = self.tabs.addTab(self.view_train_images, "Training Images")
         print(f'index is {index}')
         index1 = self.tabs.addTab(self.TestImagesUI(), "Testing Images")
         print(f'index is {index1}')
@@ -553,3 +561,67 @@ class viewImagesTabs(QWidget):
 
         ### Return the tab widget!
         return TestImageTab
+
+class ViewTrainImages(QLabel):
+    def __init__(self, View):
+        super().__init__()
+        self.View = View
+        self.Controller = self.View.Controller 
+
+        self.initUI()
+
+    def initUI(self):  
+    #First, define the label
+        self.view_train_img = QLabel()
+        self.view_train_img.setPixmap(QPixmap('Figure_1.png'))     #Test load
+
+    #Second, define the ScrollArea
+        # self.scroll_area = QScrollArea(self)
+        # self.scroll_area.setWidget(self.view_train_img)
+
+
+    #Then, define the buttons we want to use
+        self.next_btn = QPushButton('&Next', self)
+        self.prev_btn = QPushButton('&Prev', self)
+
+        self.next_btn.clicked.connect(self.Controller.train_next_page)
+        self.prev_btn.clicked.connect(self.Controller.train_prev_page)
+
+        self.test_btn1 = QPushButton('Test', self)
+        self.test_btn2 = QPushButton('Test 2', self)
+
+    #hbox for all the buttons
+        hbox = QHBoxLayout()
+        
+        hbox.addWidget(self.prev_btn)
+        hbox.addWidget(self.next_btn)
+
+    #hbox for the main layout
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(self.view_train_img)
+        
+
+        ### vbox inside hbox2
+        mini_vbox = QVBoxLayout()
+        mini_vbox.addWidget(self.test_btn1)
+        mini_vbox.addWidget(self.test_btn2)
+        mini_vbox.addStretch(5)
+
+        hbox2.addLayout(mini_vbox)
+
+
+        vbox  = QVBoxLayout()
+
+        vbox.addLayout(hbox2)
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)   
+
+
+    def update_image(self):
+        print('check point')
+        self.view_train_img.clear()
+        self.view_train_img.setPixmap(QPixmap('Test.png'))
+        self.update()
+
+   

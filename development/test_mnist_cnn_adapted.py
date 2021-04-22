@@ -6,9 +6,14 @@ import torch.nn.functional as F
 import time
 import matplotlib as plt
 import numpy as np
+import torch
+from matplotlib import pyplot
+
+
+import matplotlib.pyplot as plt
 
 # Training settings
-batch_size = 30
+batch_size = 100
 device = 'cuda' if cuda.is_available() else 'cpu'
 print(f'Training MNIST Model on {device}\n{"=" * 44}')
 
@@ -136,11 +141,33 @@ def test():
     max_accuracy = int(correct) if int(correct) > max_accuracy else max_accuracy
     print(f'Max accuracy so far: {max_accuracy} \n')
    
+def classify(img, ps):
+    ''' 
+    Function for viewing an image and it's predicted classes.
+    '''
+    ps = ps.data.numpy().squeeze()
+    ps = ps/100
+    img = img.cpu()
+    fig, ax2 = plt.subplots(ncols=1)
+    #fig, (ax1, ax2) = plt.subplots(figsize=(6,9), ncols=2)
+    #ax1.imshow(img.resize_(1, 28, 28).numpy().squeeze())
+    #ax1.axis('off')
+    ax2.barh(np.arange(10), ps)
+    ax2.set_aspect(10)
+    ax2.set_yticks(np.arange(10))
+    ax2.set_yticklabels(np.arange(10))
+    ax2.set_title('Class Probability')
+    ax2.set_xlim(0, 100)
+    plt.tight_layout()
+    plt.savefig('Tessss.png')
+
+
 
 if __name__ == '__main__':
-    
+
+
     since = time.time()
-    for epoch in range(1, 21):
+    for epoch in range(1, 2):
         epoch_start = time.time()
         train(epoch)
         m, s = divmod(time.time() - epoch_start, 60)
@@ -149,5 +176,39 @@ if __name__ == '__main__':
         m, s = divmod(time.time() - epoch_start, 60)
         print(f'Testing time: {m:.0f}m {s:.0f}s')
 
+
+        #images = test_dataset[0][0]
+        #images.to(device)
+
+        images, labels = next(iter(test_loader))
+        # replace trainloader to check training accuracy.
+
+        
+        img = images[1].cuda()
+        # img = images[0].view(1, 784).cuda()
+        
+        #images = torch.tensor(images[0])
+
+        # img = images[0].view(1, 784)
+        
+        img = torch.unsqueeze(img, 0)
+        # img = torch.unsqueeze(img, 0)
+
+        #img = img.to(device)
+        # print(img)
+
+        # Turn off gradients to speed up this part
+        with torch.no_grad():
+            logpb = model(img)
+
+        # Output of the network are log-probabilities, need to take exponential for probabilities
+        pb = torch.exp(logpb)
+        x = pb.cpu()
+        
+        probab = list(x.numpy()[0])
+        print("Predicted Digit =", probab.index(max(probab)))
+        classify(img.view(1, 28, 28), x)
+
     m, s = divmod(time.time() - since, 60)
     print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {device}!')
+

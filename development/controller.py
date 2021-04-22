@@ -46,6 +46,8 @@ class Controller(QObject):
     def enable_download_button(self):   self.View.dialog_view.download_btn.setEnabled(True) 
     def enable_train_btn(self):
         if self.Model.data_available == True: self.View.dialog_view.train_btn.setEnabled(True)
+    def enable_load_button(self):
+        if self.Model.data_available == True: self.View.dialog_view.load_model_btn.setEnabled(True)
 
     def pbar_update_slot(self, msg):
         self.View.dialog_view.pbar.setValue(int(msg))
@@ -76,6 +78,7 @@ class Controller(QObject):
         self.View.dialog_view.text_browser.append('Download Complete!!! MNIST Dataset is available')
         self.enable_train_btn()
         self.enable_download_button()
+        self.enable_load_button()
         time.sleep(0.1)
 
 
@@ -149,6 +152,11 @@ class Controller(QObject):
 
         print(f'it took {end - start} sec to make an image.')
         
+    def load_model_control(self): self.Model.load_model()
+
+    def process_images_control(self): 
+        
+        self.Model.process_images()
 
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
@@ -205,6 +213,7 @@ class Controller(QObject):
         self.thread[1].stop()
         self.enable_train_btn()
         self.enable_train_btn()
+        
         
     
     """ Worker 2 is reserved for future features"""

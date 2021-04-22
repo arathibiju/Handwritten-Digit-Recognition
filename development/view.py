@@ -98,6 +98,7 @@ class drawCanvas(QWidget) :
             ## set the painter widget to act on the pixmap, set pen and stroke size
             painter = QPainter(self.label.pixmap())
             painter.setPen(QPen(Qt.black, 20))
+       
             #painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
             #draw a line from the current mouse position to the last mouse position
             painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
@@ -126,8 +127,8 @@ class drawCanvas(QWidget) :
     ## Scale down the image to required size, smooth transformation and save as .png
     def saveImage(self):
         image = self.label.pixmap()
-        image = image.scaled(20, 20, Qt.KeepAspectRatio,Qt.SmoothTransformation)
-        image.save("SavedTestImage.png")
+        ##image = image.scaled(20, 20, Qt.KeepAspectRatio,Qt.SmoothTransformation)
+        image.save("SavedImage.png")
 
         
     def resizeEvent(self, event):
@@ -156,18 +157,18 @@ class MyApp(QMainWindow):
         clearButton = QPushButton("Clear",self)
         clearButton.clicked.connect(self.draw_widget.clearCanvas)
 
-        saveButton = QPushButton("Save", self)
-        saveButton.clicked.connect(self.draw_widget.saveImage)
 
         modelButton = QPushButton("Model",self)
 
         recognizeButton = QPushButton("Recognize",self)
+        recognizeButton.clicked.connect(self.draw_widget.saveImage)
+        recognizeButton.clicked.connect(self.Controller.process_images_control)
+        
 
 
         self.layout.addWidget(clearButton,1,1)
         self.layout.addWidget(modelButton,2,1)
         self.layout.addWidget(recognizeButton,3,1)
-        self.layout.addWidget(saveButton,4,1)
 
 
     def initUI(self):
@@ -336,6 +337,7 @@ class TrainModelDialog(QWidget):
 
         self.download_btn.clicked.connect(self.Controller.start_worker_1_download)
         #self.download_btn.clicked.connect(self.Controller.downloadDialog)   # This signal need to be moved to somewhere too, not here
+        self.load_model_btn.clicked.connect(self.Controller.load_model_control)
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
         #self.train_btn.clicked.connect(self.Controller.trainDialog)        #Turn this off for testing purpose

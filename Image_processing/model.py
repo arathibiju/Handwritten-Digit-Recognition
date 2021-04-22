@@ -87,6 +87,15 @@ class Model():
                 print('Train Epoch: {} | Batch Status: {}/{} ({:.0f}%) | Loss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(self.train_loader.dataset),
                     100. * batch_idx / len(self.train_loader), loss.item()))
+    
+        torch.save(self.model.state_dict(), 'model')
+        
+    def load_model(self):
+        self.device = torch.device('cpu')
+        # self.model = Model()
+        self.model = torch.load('model')
+        print("loading worked")
+
                 
 
     def download_data(self):

@@ -164,7 +164,7 @@ def classify(img, ps):
 
 
 if __name__ == '__main__':
-
+    print(matplotlib.pyplot)
 
     since = time.time()
     for epoch in range(1, 2):
@@ -182,9 +182,11 @@ if __name__ == '__main__':
 
         images, labels = next(iter(test_loader))
         # replace trainloader to check training accuracy.
-
+        if cuda.is_available():
         
-        img = images[1].cuda()
+            img = images[1].cuda()
+        else:
+            img = images[1]
         # img = images[0].view(1, 784).cuda()
         
         #images = torch.tensor(images[0])
@@ -196,7 +198,6 @@ if __name__ == '__main__':
 
         #img = img.to(device)
         # print(img)
-
         # Turn off gradients to speed up this part
         with torch.no_grad():
             logpb = model(img)

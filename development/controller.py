@@ -166,6 +166,7 @@ class Controller(QObject):
         self.Model.load_model()
         self.View.dialog_view.text_browser.append('Loading Complete!')
         self.load_complete_flag = True
+        self.View.main_view.recognizeButton.setEnabled(True)
 
 
     def process_images_control(self): 

@@ -28,6 +28,7 @@ class View:
         self.dialog_view = TrainModelDialog(self)
         self.view_images = ViewImages(self)
         self.view_images_tabs = viewImagesTabs(self)
+        
 
         #ex1.show()
         # #ex1.hide()
@@ -48,7 +49,7 @@ class drawCanvas(QWidget) :
         #assign the pixmap to a Qlabel for display it on the widget
         self.label = QLabel()
         self.label.setPixmap(self.canvas)
-        
+
 
         #add QLabel to the layout to display the pixmap
         self.layout.addWidget(self.label, 0, 0)
@@ -167,16 +168,17 @@ class MyApp(QMainWindow):
         clearButton.setStatusTip("Clear the Canvas")
         clearButton.clicked.connect(self.draw_widget.clearCanvas)
 
-        recognizeButton = QPushButton("Recognize",self)
-        recognizeButton = QPushButton("Recognize",self)
-        recognizeButton.setStatusTip("Classify the drawn digit. Please load model before classifying")
-        recognizeButton.clicked.connect(self.draw_widget.saveImage)
-        recognizeButton.clicked.connect(self.Controller.process_images_control)
-
+        self.recognizeButton = QPushButton("Recognize",self)
+        self.recognizeButton = QPushButton("Recognize",self)
+        self.recognizeButton.setStatusTip("Classify the drawn digit. Please load model before classifying")
+        self.recognizeButton.setEnabled(False)
+        self.recognizeButton.clicked.connect(self.recognizeButtonCheck)
         
 
+    
+
         self.layout.addWidget(clearButton,1,0)
-        self.layout.addWidget(recognizeButton,2,0)
+        self.layout.addWidget(self.recognizeButton,2,0)
         self.layout.addWidget(self.graph, 0, 1)
         self.layout.addWidget(self.text, 1,1)
 
@@ -185,6 +187,10 @@ class MyApp(QMainWindow):
 
     def resetText(self, digit):
         self.text.setText(f"Your digit is {digit}")
+
+    def recognizeButtonCheck(self):
+        self.recognizeButton.clicked.connect(self.draw_widget.saveImage)
+        self.recognizeButton.clicked.connect(self.Controller.process_images_control)
 
     def initUI(self):
         #print('myapp ui')

@@ -33,6 +33,7 @@ class Controller(QObject):
         print('This is the controller')
         self.View.main()
         self.enable_train_btn()
+        self.load_complete_flag = False
         #self.send_command()
         #print(self.View.ex1)
         
@@ -44,28 +45,34 @@ class Controller(QObject):
     def disable_train_btn(self):        self.View.dialog_view.train_btn.setEnabled(False) 
     def disable_download_btn(self):     self.View.dialog_view.download_btn.setEnabled(False)
     def enable_download_button(self):   self.View.dialog_view.download_btn.setEnabled(True) 
+    def enable_combo_box(self):         self.View.dialog_view.select_model_cbb1.setEnabled(True)
     def enable_train_btn(self):
         if self.Model.data_available == True: self.View.dialog_view.train_btn.setEnabled(True)
-
+    def enable_load_button(self):
+        if self.Model.data_available == True: self.View.dialog_view.load_model_btn.setEnabled(True)
     def pbar_update_slot(self, msg):
         self.View.dialog_view.pbar.setValue(int(msg))
-        if self.View.dialog_view.pbar.value() ==  self.View.dialog_view.pbar.maximum():   
+        if self.View.dialog_view.pbar.value() ==  self.View.dialog_view.pbar.maximum(): 
             self.View.dialog_view.pbar.setValue(self.View.dialog_view.pbar.maximum())
+        
+
             
     def pbar_train_mode(self):
         self.View.dialog_view.pbar.setMinimum(0)
         total_steps =int(60000  * (self.Model.epoch_range - 1)) 
         self.View.dialog_view.pbar.setMaximum(total_steps)
 
+
     def reset_pbar(self):
         print('get here')
         self.View.dialog_view.pbar.setValue(0)
+        #self.View.dialog_view.text_browser.append('Training was cancelled')
 
     ######## DIALOG UI STUFF HERE#########
     def downloadDialog(self):
         print('check if get here')
         print('check time call')
-        self.View.dialog_view.text_browser.append("Downloading MINST dataset!!!")
+        self.View.dialog_view.text_browser.append("Downloading MINST dataset..")
         #self.View.dialog_view.text_browser.append("Completed!!! Dataset is available!")
 
     def trainDialog(self):  self.View.dialog_view.text_browser.append("Training....")
@@ -73,18 +80,25 @@ class Controller(QObject):
 
     def message_download_complete(self):
         self.thread[1].disconnect()
-        self.View.dialog_view.text_browser.append('Download Complete!!! MNIST Dataset is available')
+        self.View.dialog_view.text_browser.append('Download Complete! MNIST Dataset is available')
         self.enable_train_btn()
         self.enable_download_button()
-        time.sleep(0.1)
+        self.enable_load_button()
+        self.enable_combo_box()
+        time.sleep(0.1),
 
 
     def message_training_complete(self):
         self.thread[1].disconnect()
+        #self.View.dialog_view.text_browser.append('Training Complete! Model is ready to load and use')
+
+    def finished_training(self, device, accuracy):
+
+        pass
+
     
 
     def clearDialog(self):
-        print("inside this function")
         self.View.dialog_view.text_browser.clear()
         
     def dummy_function(self):           #This is a reserved function which can be used for testing purposes
@@ -97,7 +111,6 @@ class Controller(QObject):
     def show_images_view(self): 
         self.View.view_images.show()
         #self.View.view_images_tabs.tabs.setCurrentIndex(1)
-        print("pls work")
 
     ######## SOME CORE STUFF HERE #########
     def train_next_page (self):
@@ -106,7 +119,7 @@ class Controller(QObject):
         self.current_value += 1
 
     def train_prev_page (self):
-        print('hey')
+       # print('hey')
         self.View.view_images.tab_widget.view_train_images.update_image()
 
     def test_next_page (self):
@@ -149,6 +162,16 @@ class Controller(QObject):
 
         print(f'it took {end - start} sec to make an image.')
         
+    def load_model_control(self): 
+        self.Model.load_model()
+        self.View.dialog_view.text_browser.append('Loading Complete!')
+        self.load_complete_flag = True
+
+
+    def process_images_control(self): 
+        self.Model.process_images()
+        self.View.main_view.resetGraph()
+        self.View.main_view.resetText(self.Model.current_digit)
 
 
     ### THIS IS THE PLACE WHERE WE DO MOST OF THE THINGS
@@ -196,7 +219,7 @@ class Controller(QObject):
         self.thread[1].start()
         
 
-        print(self.View.dialog_view.pbar.maximum())
+        #print(self.View.dialog_view.pbar.maximum())
         #self.thread[1].started.connect(self.start_worker_2_train)
         self.View.dialog_view.train_btn.setEnabled(False)
        
@@ -231,6 +254,7 @@ class Controller(QObject):
         self.thread[2].stop()
         self.Model.progress = 0
         self.reset_pbar()
+        ##self.completed_training_dialog()
 
     ##############################################################################################################
     ##############################################################################################################
@@ -248,7 +272,7 @@ class ThreadClass(QThread):
         
         self.is_running = True
         self.index = index
-        print('Start fucking QTHREAD')
+        print('Start QTHREAD')
     def run(self):
         # print('Starting Thread')
         # print(self.Controller)
@@ -274,10 +298,6 @@ class ThreadClass(QThread):
 
             elif self.task == "validate":  
                 time.sleep(5)
-            
-            
-            
-
             
 
         elif self.index==2:
@@ -326,7 +346,7 @@ class ThreadClass(QThread):
     def download_dataset(self):
         try:
             train_dataset = datasets.MNIST(root='mnist_data/', train=False, download=True)
-            print('The shit is completed')
+            print('The stuff is completed')
         except:
             print('The server is not very responsive, trying to reconnect')
             time.sleep(2)

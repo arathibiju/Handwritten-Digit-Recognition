@@ -12,13 +12,13 @@ from PyQt5.QtCore       import QSize, Qt, QBasicTimer
 
 class View:
     def __init__(self, Controller):
-        print('We are in init of View')
+        #print('We are in init of View')
         self.Controller = Controller
-        print(Controller)
+       # print(Controller)
 
     def main(self):
-        print('We are in main of View')
-        print(self.Controller)
+       # print('We are in main of View')
+       # print(self.Controller)
 
         #self.mainloop()
         
@@ -97,7 +97,7 @@ class drawCanvas(QWidget) :
 
             ## set the painter widget to act on the pixmap, set pen and stroke size
             painter = QPainter(self.label.pixmap())
-            painter.setPen(QPen(Qt.black, 20))
+            painter.setPen(QPen(Qt.black, 20, Qt.SolidLine, Qt.RoundCap))
             #painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
             #draw a line from the current mouse position to the last mouse position
             painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
@@ -132,6 +132,7 @@ class drawCanvas(QWidget) :
         
     def resizeEvent(self, event):
         pass
+  
 
 class MyApp(QMainWindow):
 
@@ -141,7 +142,7 @@ class MyApp(QMainWindow):
         self.Controller = View.Controller
 
 
-        print('myapp')
+        #print('myapp')
         self.initUI()
 
         self.window = QWidget()
@@ -151,27 +152,42 @@ class MyApp(QMainWindow):
   
         self.draw_widget = drawCanvas()
   
-        self.layout.addWidget(self.draw_widget,0,0,5,1)
+        self.layout.addWidget(self.draw_widget,0,0)
 
+        self.graph = QLabel()
+        self.graph.setPixmap(QPixmap('BlankGraph.png'))
+        self.text = QLabel()
+        self.text.setAlignment(Qt.AlignCenter)
+        self.text.setText("Please draw a digit")
+
+        
+        
+        
         clearButton = QPushButton("Clear",self)
+        clearButton.setStatusTip("Clear the Canvas")
         clearButton.clicked.connect(self.draw_widget.clearCanvas)
 
-        saveButton = QPushButton("Save", self)
-        saveButton.clicked.connect(self.draw_widget.saveImage)
-
-        modelButton = QPushButton("Model",self)
-
         recognizeButton = QPushButton("Recognize",self)
+        recognizeButton = QPushButton("Recognize",self)
+        recognizeButton.setStatusTip("Classify the drawn digit. Please load model before classifying")
+        recognizeButton.clicked.connect(self.draw_widget.saveImage)
+        recognizeButton.clicked.connect(self.Controller.process_images_control)
 
+        
 
-        self.layout.addWidget(clearButton,1,1)
-        self.layout.addWidget(modelButton,2,1)
-        self.layout.addWidget(recognizeButton,3,1)
-        self.layout.addWidget(saveButton,4,1)
+        self.layout.addWidget(clearButton,1,0)
+        self.layout.addWidget(recognizeButton,2,0)
+        self.layout.addWidget(self.graph, 0, 1)
+        self.layout.addWidget(self.text, 1,1)
 
+    def resetGraph(self):
+        self.graph.setPixmap(QPixmap('Graph.png'))
+
+    def resetText(self, digit):
+        self.text.setText(f"Your digit is {digit}")
 
     def initUI(self):
-        print('myapp ui')
+        #print('myapp ui')
         ## menu bar set up
         # Set menu bar exit action
         exitAction = QAction(QIcon('exit.png'), 'Exit', self)
@@ -183,8 +199,9 @@ class MyApp(QMainWindow):
         train_action.setStatusTip('Train the Model')
         train_action.triggered.connect(self.Controller.show_train_dialog)
 
-        helpAction = QAction("Docs", self)
-        helpAction.setStatusTip('View github docs and instructions')
+        # helpAction = QAction("Docs", self)
+        # helpAction.setStatusTip('View github docs and instructions')
+        # helpAction.triggered.connect(lambda: webbrowser.open('http://www.google.com'))
 
         trainImagesAction = QAction("View Training Images", self)
         trainImagesAction.setStatusTip('View Training Images used by the model')
@@ -213,19 +230,17 @@ class MyApp(QMainWindow):
         # viewmenu.addAction(trainImagesAction)
         # viewmenu.addAction(testImagesAction)
 
-        helpmenu = menubar.addMenu('&Help')
-        helpmenu.addAction(helpAction)
+        # helpmenu = menubar.addMenu('&Help')
+        # helpmenu.addAction(helpAction)
 
         #set status message
         self.statusBar().showMessage('Ready')
-
-    
 
         self.setWindowTitle('Handwritten Digit Recognizer')
         self.setGeometry(300, 300, 400, 400)
 
         self.show()
-
+    
     # def mouseMoveEvent(self, e):
         
 
@@ -262,11 +277,11 @@ class TrainModelDialog(QWidget):
         
         self.View = View
         self.Controller = self.View.Controller
-        print('now I see why')
-        print(self.View)
-        print('This is the controller inside the dialog')
-        print(self.View.Controller)
-        print(self.Controller)
+        #print('now I see why')
+       # print(self.View)
+       # print('This is the controller inside the dialog')
+       # print(self.View.Controller)
+       # print(self.Controller)
         #print(self.View.Controller.random_value)
         
         self.initUI()
@@ -318,13 +333,16 @@ class TrainModelDialog(QWidget):
             # This combo box has 2 options, 1 to select the MLP model, 1 for the CNN model
             # We select the CNN Model by default...
         self.select_model_cbb1 = QComboBox(self)
+
+
         self.select_model_cbb1.addItem('CNN Model')
+
         self.select_model_cbb1.addItem('MLP Model')
         
 
-        print('hey we are inside initUI dialog')
-        print(self.View)
-        print(self)
+       # print('hey we are inside initUI dialog')
+       # print(self.View)
+       # print(self)
     ############# Configuring the initial states of all of the buttons
         #self.download_btn.setCheckable(True)
 
@@ -336,11 +354,13 @@ class TrainModelDialog(QWidget):
 
         self.download_btn.clicked.connect(self.Controller.start_worker_1_download)
         #self.download_btn.clicked.connect(self.Controller.downloadDialog)   # This signal need to be moved to somewhere too, not here
+        self.load_model_btn.clicked.connect(self.Controller.load_model_control)
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
         #self.train_btn.clicked.connect(self.Controller.trainDialog)        #Turn this off for testing purpose
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
+
 
     #hbox for all the buttons
         hbox = QHBoxLayout()
@@ -373,7 +393,7 @@ class TrainModelDialog(QWidget):
         self.centre()
             ### turn off self.show(), move this into a View tab on Main Window
             ### only use this for quick debugging
-        self.show()
+        #self.show()
 
     
 
@@ -402,7 +422,7 @@ class TrainModelDialog(QWidget):
             self.menu.popup(QCursor.pos())
 
     
-        print("right button was clicked from menu")
+       # print("right button was clicked from menu")
 
 
  
@@ -424,7 +444,7 @@ class TrainModelDialog(QWidget):
 class ViewImages(QMainWindow):
     def __init__(self, View):
         super().__init__()   
-        print("view model dialog init")
+       # print("view model dialog init")
         self.View = View
         self.Controller = self.View.Controller
         
@@ -526,9 +546,9 @@ class viewImagesTabs(QWidget):
         #tab3 = QWidget()
         ## add tabs to widget by calling tab init functions, allowing us to easily customise tabs
         index = self.tabs.addTab(self.view_train_images, "Training Images")
-        print(f'index is {index}')
+      #  print(f'index is {index}')
         index1 = self.tabs.addTab(self.TestImagesUI(), "Testing Images")
-        print(f'index is {index1}')
+      #  print(f'index is {index1}')
         ## addd tab widget to the layout to display it
         vbox.addWidget(self.tabs)
 

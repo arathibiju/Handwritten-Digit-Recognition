@@ -8,9 +8,16 @@ from torch.utils import data
 from torchvision import datasets, transforms, models
 import torch.nn.functional as F
 import time
-import matplotlib as plt
+import cv2
 import numpy as np
+import torch 
 
+
+import matplotlib as plt
+from matplotlib import pyplot
+
+
+import matplotlib.pyplot as plt
 # # MNIST Dataset
 # train_dataset = datasets.MNIST(root='mnist_data/',
 #                             train=True,
@@ -48,7 +55,7 @@ class Model():
         self.progress = 0
         self.current_accuracy = 0
         self.max_accuracy = 0
-
+        self.current_digit = 0
         print('We are in Model init')
         # self.model = model
         
@@ -72,6 +79,85 @@ class Model():
 
         m, s = divmod(time.time() - since, 60)
         print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {self.device}!')
+        self.model_trained_string = f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {self.device}!'
+        torch.save(self.model, 'model.pth')
+        
+    def load_model(self):
+        self.device = torch.device('cpu')
+        # self.model = Model()
+        self.model = torch.load('model.pth')
+        print("loading worked")
+    
+    def process_images(self):
+
+        original = cv2.imread('SavedImage.png')
+        grayscale = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY) ## convert to grayscale for thresholding operation
+        ## apply otsu binary thresholding to the image, will return a binary matrix with only 0 and 255 inverted
+        ## which is needed for the input to the find non zero function
+        threshold = cv2.threshold(grayscale, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] 
+
+        # Find enclosing bounding box and crop image accordingly
+        coords = cv2.findNonZero(threshold)
+
+        x,y,w,h = cv2.boundingRect(coords)
+
+        crop = grayscale[y:y+h, x:x+w]
+
+        invert = cv2.bitwise_not(crop) ## invert image
+
+        size = (20, 20) ## create size object for scaling
+
+        scaledown = cv2.resize(invert, size, interpolation = cv2.INTER_AREA) ## scale down image to required size
+        padded = cv2.copyMakeBorder(scaledown,4,4,4,4,cv2.BORDER_CONSTANT,value = 0) ## pad image with black space
+
+        cv2.imwrite('cry.png', padded)
+
+        nparray = np.array(padded) ## convert image to numpy array
+
+
+        tensor = torch.from_numpy(nparray).float() ## convert to tensor
+
+        tensor = torch.unsqueeze(tensor,0) ## add 2 dimensions 
+        tensor = torch.unsqueeze(tensor,0)
+
+        print(tensor.size())
+
+        if cuda.is_available():
+            tensor = tensor.cuda()
+        else:
+            tensor = tensor
+        # Turn off gradients to speed up this part
+        self.model.eval()
+        with torch.no_grad():
+            logpb = self.model(tensor)
+
+        # Output of the network are log-probabilities, need to take exponential for probabilities
+        probablilty_cpu = torch.exp(logpb)
+        
+        
+        probab = list( probablilty_cpu.numpy()[0])
+        self.current_digit = probab.index(max(probab))
+        print("Predicted Digit =", probab.index(max(probab)))
+
+
+    ###Function for viewing an image and it's predicted classes.
+
+        tensor = tensor.view(1, 28, 28)
+        probablilty_cpu =  probablilty_cpu.data.numpy().squeeze()
+        probablilty_cpu =  probablilty_cpu/100
+        
+        fig, ax2 = plt.subplots(ncols=1)
+        #fig, (ax1, ax2) = plt.subplots(figsize=(6,9), ncols=2)
+        #ax1.imshow(tensor.resize_(1, 28, 28).numpy().squeeze())
+        #ax1.axis('off')
+        ax2.barh(np.arange(10), probablilty_cpu)
+        ax2.set_aspect(0.1)
+        ax2.set_yticks(np.arange(10))
+        ax2.set_yticklabels(np.arange(10))
+        ax2.set_title('Class Probability')
+        ax2.set_xlim(0, 1)
+        plt.tight_layout()
+        plt.savefig('Graph.png')
 
     def train(self, epoch):
         self.model.train()
@@ -87,6 +173,7 @@ class Model():
                 print('Train Epoch: {} | Batch Status: {}/{} ({:.0f}%) | Loss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(self.train_loader.dataset),
                     100. * batch_idx / len(self.train_loader), loss.item()))
+        
                 
 
     def download_data(self):
@@ -144,6 +231,13 @@ class Model():
         self.current_accuracy = int(correct)
         self.max_accuracy = int(correct) if int(correct) > self.max_accuracy else self.max_accuracy
         print(f'Max accuracy so far: {self.max_accuracy} \n')
+
+        x = self.max_accuracy
+        self.model_accuracy_string = f'Max accuracy so far: {self.max_accuracy}'
+
+        
+
+        
 
 
 class Net(nn.Module):

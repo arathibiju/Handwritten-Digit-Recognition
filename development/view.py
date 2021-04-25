@@ -127,7 +127,7 @@ class drawCanvas(QWidget) :
     def saveImage(self):
         image = self.label.pixmap()
         image = image.scaled(20, 20, Qt.KeepAspectRatio,Qt.SmoothTransformation)
-        image.save("SavedTestImage.png")
+        image.save("SavedImage.png")
 
         
     def resizeEvent(self, event):
@@ -358,6 +358,7 @@ class TrainModelDialog(QWidget):
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
         #self.train_btn.clicked.connect(self.Controller.trainDialog)        #Turn this off for testing purpose
+
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
 
@@ -527,7 +528,6 @@ class ViewImages(QMainWindow):
     #         self.move(qr.topLeft()) 
 
 '''
-
 ## subclass for the tab widget
 class viewImagesTabs(QWidget):
     def __init__(self, View):
@@ -542,13 +542,14 @@ class viewImagesTabs(QWidget):
         # Initialize tab screen
         self.tabs = QTabWidget()
         self.view_train_images = ViewTrainImages(self)
+        self.view_test_images = ViewTestImages(self)
         #tabs = QTabWidget()
         #tab3 = QWidget()
         ## add tabs to widget by calling tab init functions, allowing us to easily customise tabs
         index = self.tabs.addTab(self.view_train_images, "Training Images")
-      #  print(f'index is {index}')
-        index1 = self.tabs.addTab(self.TestImagesUI(), "Testing Images")
-      #  print(f'index is {index1}')
+        print(f'index is {index}')
+        index1 = self.tabs.addTab(self.view_test_images, "Testing Images")
+        print(f'index is {index1}')
         ## addd tab widget to the layout to display it
         vbox.addWidget(self.tabs)
 
@@ -607,8 +608,8 @@ class ViewTrainImages(QLabel):
         self.next_btn.clicked.connect(self.Controller.train_next_page)
         self.prev_btn.clicked.connect(self.Controller.train_prev_page)
 
-        self.test_btn1 = QPushButton('Test', self)
-        self.test_btn2 = QPushButton('Test 2', self)
+        # self.test_btn1 = QPushButton('Test', self)
+        # self.test_btn2 = QPushButton('Test 2', self)
 
     #hbox for all the buttons
         hbox = QHBoxLayout()
@@ -623,8 +624,8 @@ class ViewTrainImages(QLabel):
 
         ### vbox inside hbox2
         mini_vbox = QVBoxLayout()
-        mini_vbox.addWidget(self.test_btn1)
-        mini_vbox.addWidget(self.test_btn2)
+        # mini_vbox.addWidget(self.test_btn1)
+        # mini_vbox.addWidget(self.test_btn2)
         mini_vbox.addStretch(5)
 
         hbox2.addLayout(mini_vbox)
@@ -638,10 +639,73 @@ class ViewTrainImages(QLabel):
         self.setLayout(vbox)   
 
 
-    def update_image(self):
+    def update_image(self, index):
         print('check point')
         self.view_train_img.clear()
-        self.view_train_img.setPixmap(QPixmap('Test.png'))
+        img = QPixmap('cache/train_set/mnist_cache_' + str(index) +'.png')
+        self.view_train_img.setPixmap(img)
         self.update()
 
-   
+
+class ViewTestImages(QLabel):
+    def __init__(self, View):
+        super().__init__()
+        self.View = View
+        self.Controller = self.View.Controller 
+
+        self.initUI()
+
+    def initUI(self):  
+    #First, define the label
+        self.view_test_img = QLabel()
+        self.view_test_img.setPixmap(QPixmap('Figure_1.png'))     #Test load
+
+    #Second, define the ScrollArea
+        # self.scroll_area = QScrollArea(self)
+        # self.scroll_area.setWidget(self.view_train_img)
+
+
+    #Then, define the buttons we want to use
+        self.next_btn_test = QPushButton('&Next', self)
+        self.prev_btn_test = QPushButton('&Prev', self)
+
+        self.next_btn_test.clicked.connect(self.Controller.test_next_page)
+        self.prev_btn_test.clicked.connect(self.Controller.test_prev_page)
+
+        # self.test_btn1_test = QPushButton('Test', self)
+        # self.test_btn2_test = QPushButton('Test 2', self)
+
+    #hbox for all the buttons
+        hbox = QHBoxLayout()
+        
+        hbox.addWidget(self.prev_btn_test)
+        hbox.addWidget(self.next_btn_test)
+
+    #hbox for the main layout
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(self.view_test_img)
+        
+
+        ### vbox inside hbox2
+        mini_vbox = QVBoxLayout()
+        # mini_vbox.addWidget(self.test_btn1_test)
+        # mini_vbox.addWidget(self.test_btn2_test)
+        mini_vbox.addStretch(5)
+
+        hbox2.addLayout(mini_vbox)
+
+
+        vbox  = QVBoxLayout()
+
+        vbox.addLayout(hbox2)
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)   
+
+
+    def update_image(self, index):
+        print('check point')
+        self.view_test_img.clear()
+        img = QPixmap('cache/test_set/mnist_cache_' + str(index) +'.png')
+        self.view_test_img.setPixmap(img)
+        self.update()

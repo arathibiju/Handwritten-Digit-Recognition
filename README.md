@@ -82,8 +82,20 @@ https://docs.conda.io/en/latest/miniconda.html
 
 
 ## Running the project
+ 
+ Clone the Github repo to your computer.
+ 
+ Using VSCode to open the folder
+ 
+ Run main.py or Controller.py
+ 
+ Start using
+ 
+ ...
 
-### Ackowledgements 
+### Acknowledgements 
 The teaching staff of COMPSYS302 at the University of Auckland, in particular:
 - Dr Ho Seok AHN
-- Jong Yoon Lim
+- Mr Jong Yoon Lim
+- Ms Yuanyuan Hu
+

@@ -16,17 +16,17 @@ If you're familiar with all of this, just make sure you have all the required li
 
 
 ## Installation Guide
-**1. Install VSCode **
+**1. Install VSCode**
 
-  !https://code.visualstudio.com/
+https://code.visualstudio.com/
   
-**2. Install Python Extension for Visual Studio Code **
+**2. Install Python Extension for Visual Studio Code**
 
-**3. Install Miniconda3 for Python 3.8 **
+**3. Install Miniconda3 for Python 3.8**
 
-!https://docs.conda.io/en/latest/miniconda.html
+https://docs.conda.io/en/latest/miniconda.html
 
-**4. Set up conda environment **
+**4. Set up conda environment**
 
  >  Open Anaconda Prompt (miniconda3)
  

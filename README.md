@@ -50,9 +50,7 @@ https://docs.conda.io/en/latest/miniconda.html
  
  `conda activate <name of your environment>`
  
- For example:
- 
- `conda activate py302_project`
+ For example:  `conda activate py302_project`
  
  > List all the package we are currently have
  
@@ -69,15 +67,14 @@ https://docs.conda.io/en/latest/miniconda.html
  > If you have a GTX graphics card: Then CUDA 10.2 is likely the best version for you 
 
 ```bash
- pip install PyQt5 numpy matplot
+ pip install PyQt5 numpy matplotlib opencv-python
  pip3 install torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
-lib opencv-python
 ```
 
  > If you have a RTX graphics card: Then CUDA 11.1 is the best version for you 
 
 ```bash
- pip install PyQt5 numpy matplot
+ pip install PyQt5 numpy matplotlib opencv-python
  pip3 install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 

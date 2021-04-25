@@ -42,7 +42,7 @@ https://docs.conda.io/en/latest/miniconda.html
  
  For example: `conda create -n py302_project python=3.8`
  
- Type [y] when prompted:
+ > Type [y] when prompted:
  
  ---
  
@@ -61,12 +61,12 @@ https://docs.conda.io/en/latest/miniconda.html
  
  **5. Install the necessary libraries for this project**
  
- > If you don't have a CUDA-Enabled GPU (Nvidia Graphics Card), then run this command:
+  If you don't have a CUDA-Enabled GPU (Nvidia Graphics Card), then run this command:
  
  `pip install PyQt5 torch torchvision numpy matplotlib opencv-python`
  
-> If you have a CUDA-Enabled GPU and want to use it
->> If you have a GTX graphics card: Then CUDA 10.2 is likely the best version for you 
+ If you have a CUDA-Enabled GPU and want to use it
+ > If you have a GTX graphics card: Then CUDA 10.2 is likely the best version for you 
 
 ```bash
  pip install PyQt5 numpy matplot
@@ -74,14 +74,14 @@ https://docs.conda.io/en/latest/miniconda.html
 lib opencv-python
 ```
 
->> If you have a RTX graphics card: Then CUDA 11.1 is the best version for you 
+ > If you have a RTX graphics card: Then CUDA 11.1 is the best version for you 
 
 ```bash
  pip install PyQt5 numpy matplot
  pip3 install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
->> If you have a Quadro graphics card, then try to find out if your card does have TPU or not, if it does then RTX guide above, else GTX.
+ > If you have a Quadro graphics card, then try to find out if your card does have TPU or not, if it does then RTX guide above, else GTX.
 
 
 ## Running the project

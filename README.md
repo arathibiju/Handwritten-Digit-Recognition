@@ -89,7 +89,16 @@ https://docs.conda.io/en/latest/miniconda.html
  
  Run main.py or Controller.py
  
- Start using
+ The main window titled `Handwritten Digit Recogniser` will start up. The first thing to do when using the software is to navigate to the train window, which can be accessed via the train option in the file menu.
+ 
+ The train menu allows you to download the MNIST dataset used by the model. Afer the download complete confirmation text has been displayed, select the type of DNN you wish to use for digit recognition, train it (please allow a few minutes for training depending on your system), then load the trained model.
+ 
+ After loading the model, exit this window and return to the main window. Use the mouse or a stylus to draw any digit of your choice on the canvas then select recognize to begin analysis. The graph on the right side of the window as well as the text underneath will update to show which digit the model has identified.
+ 
+ To change models between CNN and linear simply open the train window and repeat the above steps with a different model.
+ 
+ To view the training and testing images used by the DNN navigate to the View Model Images option in the View menu. This will open a new window showing the training and testing images used by the dataset.
+ 
  
  ...
 

@@ -50,7 +50,7 @@ class Model():
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
 
-        self.epoch_range = 2
+        self.epoch_range = 41
 
         self.progress = 0
         self.current_accuracy = 0
@@ -83,7 +83,7 @@ class Model():
         torch.save(self.model, 'model.pth')
         
     def load_model(self):
-        self.device = torch.device('cpu')
+        self.device = 'cuda' if cuda.is_available() else 'cpu'
         # self.model = Model()
         self.model = torch.load('model.pth')
         print("loading worked")
@@ -133,7 +133,7 @@ class Model():
 
         # Output of the network are log-probabilities, need to take exponential for probabilities
         probablilty_cpu = torch.exp(logpb)
-        
+        probablilty_cpu = probablilty_cpu.cpu()
         
         probab = list( probablilty_cpu.numpy()[0])
         self.current_digit = probab.index(max(probab))
@@ -145,6 +145,7 @@ class Model():
         tensor = tensor.view(1, 28, 28)
         probablilty_cpu =  probablilty_cpu.data.numpy().squeeze()
         probablilty_cpu =  probablilty_cpu/100
+        tensor = tensor.cpu()
         
         fig, ax2 = plt.subplots(ncols=1)
         #fig, (ax1, ax2) = plt.subplots(figsize=(6,9), ncols=2)

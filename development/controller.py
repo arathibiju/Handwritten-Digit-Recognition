@@ -3,6 +3,8 @@
 # ##
 import sys
 import time
+import os
+
 from PyQt5.QtWidgets    import QApplication
 from PyQt5.QtCore       import QThread, pyqtSignal, QObject, Qt 
 from torchvision        import datasets, transforms, models
@@ -19,8 +21,10 @@ from view import View
 class Controller(QObject):
     def __init__(self):
         super(Controller, self).__init__()
+        self.dir_init()
 
-        self.current_value = 0
+        self.current_value_train = -1
+        self.current_value_test = -1
         
         self.Model = Model()
         self.View = View(self)
@@ -38,6 +42,17 @@ class Controller(QObject):
         #print(self.View.ex1)
         
         ##self.Model.download_data()
+
+    def dir_init(self):
+        if os.path.isdir('cache/train_set'):
+            pass
+        else:  
+            os.mkdir('cache/train_set')
+
+        if os.path.isdir('cache/test_set'):
+            pass
+        else:  
+            os.mkdir('cache/test_set') 
         
 
     def show_train_dialog(self):        self.View.dialog_view.show()
@@ -79,18 +94,25 @@ class Controller(QObject):
         
 
     def message_download_complete(self):
-        self.thread[1].disconnect()
-        self.View.dialog_view.text_browser.append('Download Complete! MNIST Dataset is available')
-        self.enable_train_btn()
-        self.enable_download_button()
-        self.enable_load_button()
-        self.enable_combo_box()
-        time.sleep(0.1),
-
+        if self.thread[1].complete == True:
+            self.thread[1].disconnect()
+            self.View.dialog_view.text_browser.append('Download Complete! MNIST Dataset is available')
+            self.enable_train_btn()
+            self.enable_download_button()
+            self.enable_load_button()
+            self.enable_combo_box()
+            time.sleep(0.1)
+        else:
+            self.View.dialog_view.text_browser.append('Download Cancelled')
+            self.enable_download_button()
 
     def message_training_complete(self):
         self.thread[1].disconnect()
-        #self.View.dialog_view.text_browser.append('Training Complete! Model is ready to load and use')
+        if self.thread[1].complete == True:
+            self.View.dialog_view.text_browser.append('Training Complete! Model is ready to load and use')
+            self.View.dialog_view.text_browser.append('Training accuracy is ' + str(self.Model.current_accuracy / 100) + '%')
+        else:
+            self.View.dialog_view.text_browser.append('Training Cancelled')
 
     def finished_training(self, device, accuracy):
 
@@ -111,60 +133,129 @@ class Controller(QObject):
     def show_images_view(self): 
         self.View.view_images.show()
         #self.View.view_images_tabs.tabs.setCurrentIndex(1)
-
-    ######## SOME CORE STUFF HERE #########
+######## SOME CORE STUFF HERE #########
     def train_next_page (self):
+        #for i in range(0 ,11):
+        self.current_value_train += 1
+        self.load_image(self.current_value_train)
         
-        self.load_image(self.current_value)
-        self.current_value += 1
+        
 
     def train_prev_page (self):
-       # print('hey')
-        self.View.view_images.tab_widget.view_train_images.update_image()
+        self.current_value_train -= 1
+        if self.current_value_train <= -1: 
+            print('out of range')
+            self.current_value_train = -1 
+        else:
+            print('hey')
+            
+            self.load_image(self.current_value_train)
+            #self.View.view_images.tab_widget.view_train_images.update_image()
+
 
     def test_next_page (self):
-        pass
+        self.current_value_test += 1
+        self.load_image_test(self.current_value_test)
 
     def test_prev_page (self):
-        pass
+        self.current_value_test -= 1
+        if self.current_value_test <= -1: 
+            print('out of range')
+            self.current_value_test = -1 
+        else:
+            print('hey')
+            
+            self.load_image_test(self.current_value_test)
     
     def load_image(self, index):
-        #shitfunction needs to do someth
-        start = time.time()
-        fig, axis = pyplot.subplots(10, 10, figsize=(4, 4))
-        print('check if load image')
-        self.batch = index * 100
-        x = 0
-        current_batch = 0
-        for i in range (0, 9999):
-            #print('loop')
-            labels = self.Model.test_dataset[i][1]
-            #print(self.batch)
-            if ((labels !=10) and  current_batch > self.batch and current_batch < (self.batch + 100)):
-                print("We Made it")
-                if (labels !=10 and x<100):
-                    pyplot.subplot(10, 10, x+1)
-                    pyplot.axis('off')
-                    img = self.Model.test_dataset[i][0]
-                    #print(img)
-                    pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('binary'))
-                    x += 1
 
-            current_batch += 1
-        print('check start saving')
-        pyplot.savefig("Test.png")
-        pixmap = QPixmap("Test.png")      # Load a pixmap here, need place to store it
+        if os.path.isfile('cache/train_set/mnist_cache_' + str(index) + '.png'):
+            self.View.view_images.tab_widget.view_train_images.update_image(index)
+        else:
         
-        #self.View.view_images.tab_widget.view_train_images.clear()
-        #self.View.view_images.tab_widget.view_train_images.setPixmap(pixmap)
-        self.View.view_images.tab_widget.view_train_images.update_image()
-        end = time.time()
+            start = time.time()
+            fig, axis = pyplot.subplots(10, 10, figsize=(4, 4))
+            print('check if load image')
+            self.batch_train = index * 100
+            x = 0
+            current_batch = 0
+            for i in range (0, 59999):
+                #print('loop')
+                labels = self.Model.train_dataset[i][1]
+                #print(self.batch)
+                if (labels !=10 and current_batch >= self.batch_train and current_batch < (self.batch_train + 100)):
+                    print(current_batch)
+                    print(self.batbatch_trainch)
+                    #print("We Made it")
+                    #if(x <100):
+                    if (labels !=10 and x<100):
+                        pyplot.subplot(10, 10, x+1)
+                        pyplot.axis('off')
+                        img = self.Model.train_dataset[i][0]
+                        #print(img)
+                        pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('binary'))
+                        x += 1
 
-        print(f'it took {end - start} sec to make an image.')
+                current_batch += 1
+            print('check start saving')
+            pyplot.savefig('cache/train_set/mnist_cache_' + str(index) +'.png')
+            pixmap = QPixmap("Testiferror.png")      # Load a pixmap here, need place to store it
+            
+            #self.View.view_images.tab_widget.view_train_images.clear()
+            #self.View.view_images.tab_widget.view_train_images.setPixmap(pixmap)
+            self.View.view_images.tab_widget.view_train_images.update_image(index)
+            end = time.time()
+
+            print(f'it took {end - start} sec to make an image.')
+
+    def load_image_test(self, index):
+
+        if os.path.isfile('cache/test_set/mnist_cache_' + str(index) + '.png'):
+            self.View.view_images.tab_widget.view_test_images.update_image(index)
+        else:
+        
+            start = time.time()
+            fig, axis = pyplot.subplots(10, 10, figsize=(4, 4))
+            print('check if load image')
+            self.batch = index * 100
+            x = 0
+            current_batch = 0
+            for i in range (0, 9999):
+                #print('loop')
+                labels = self.Model.test_dataset[i][1]
+                #print(self.batch)
+                if (labels !=10 and current_batch >= self.batch and current_batch < (self.batch + 100)):
+                    print(current_batch)
+                    print(self.batch)
+                    #print("We Made it")
+                    #if(x <100):
+                    if (labels !=10 and x<100):
+                        pyplot.subplot(10, 10, x+1)
+                        pyplot.axis('off')
+                        img = self.Model.test_dataset[i][0]
+                        #print(img)
+                        pyplot.imshow(img.reshape(28,28), cmap=pyplot.get_cmap('binary'))
+                        x += 1
+
+                current_batch += 1
+            print('check start saving')
+            pyplot.savefig('cache/test_set/mnist_cache_' + str(index) +'.png')
+            pixmap = QPixmap("Testiferror.png")      # Load a pixmap here, need place to store it
+            
+            #self.View.view_images.tab_widget.view_train_images.clear()
+            #self.View.view_images.tab_widget.view_train_images.setPixmap(pixmap)
+            self.View.view_images.tab_widget.view_test_images.update_image(index)
+            end = time.time()
+
+            print(f'it took {end - start} sec to make an image.')
+            
         
     def load_model_control(self): 
         self.Model.load_model()
         self.View.dialog_view.text_browser.append('Loading Complete!')
+        # We need a state_dict for this line:
+        #self.View.dialog_view.text_browser.append('The loaded model has the training accuracy of ' + str(self.Model.current_accuracy / 100) + '%')
+
         self.load_complete_flag = True
         self.View.main_view.recognizeButton.setEnabled(True)
 
@@ -204,6 +295,7 @@ class Controller(QObject):
 
     def start_worker_1_download(self):
         self.thread[1].set_task("download")
+        self.thread[1].complete = False
         self.thread[1].started.connect(self.downloadDialog)
         self.thread[1].finished.connect(self.message_download_complete)
         self.disable_train_btn()
@@ -213,6 +305,7 @@ class Controller(QObject):
     def start_worker_1_train(self):
         self.pbar_train_mode()
         self.thread[1].set_task("train")
+        self.thread[1].complete = False
         self.thread[1].started.connect(self.pbar_train_mode)
         self.thread[1].started.connect(self.trainDialog)
         
@@ -228,8 +321,7 @@ class Controller(QObject):
     def stop_worker_1(self):
         self.thread[1].stop()
         self.enable_train_btn()
-        self.enable_train_btn()
-        
+
     
     """ Worker 2 is reserved for future features"""
 
@@ -273,6 +365,7 @@ class ThreadClass(QThread):
         
         self.is_running = True
         self.index = index
+        self.complete = False
         print('Start QTHREAD')
     def run(self):
         # print('Starting Thread')
@@ -288,11 +381,13 @@ class ThreadClass(QThread):
                 ## Ohhh no!!! Python no case-switch, a dict might be hard to read...
             if self.task == "download" :
                 self.Model.download_data()
+                self.complete = True
                 #self.download_dataset()
 
             elif self.task == "train": 
                 
                 self.Model.main() 
+                self.complete = True
 
             elif self.task == "test":  
                 time.sleep(5)

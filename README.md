@@ -83,21 +83,27 @@ https://docs.conda.io/en/latest/miniconda.html
 
 ## Running the project
  
- Clone the Github repo to your computer.
+ 1. Clone the Github repo to your computer.
  
- Using VSCode to open the folder
+ 2. Using VSCode to open the folder
  
- Run main.py or Controller.py
+ 3. Run main.py or Controller.py
  
- The main window titled `Handwritten Digit Recogniser` will start up. The first thing to do when using the software is to navigate to the train window, which can be accessed via the train option in the file menu.
+ 4. Navigate to the train window, via the file menu.
  
- The train menu allows you to download the MNIST dataset used by the model. Afer the download complete confirmation text has been displayed, select the type of DNN you wish to use for digit recognition, train it (please allow a few minutes for training depending on your system), then load the trained model.
+ 5. Download the MNIST dataset. 
  
- After loading the model, exit this window and return to the main window. Use the mouse or a stylus to draw any digit of your choice on the canvas then select recognize to begin analysis. The graph on the right side of the window as well as the text underneath will update to show which digit the model has identified.
+ 6. Select the type of DNN you wish to use for digit recognition then train (please allow a few minutes for training depending on your system).
  
- To change models between CNN and linear simply open the train window and repeat the above steps with a different model.
+ 7. Load the trained model.
  
- To view the training and testing images used by the DNN navigate to the View Model Images option in the View menu. This will open a new window showing the training and testing images used by the dataset.
+ 8. Return to the main window. Use the mouse or a stylus to draw any digit on the canvas. Select clear if you wish to redraw.
+
+ 9. Click recognize to begin analysis. The graph and the underlying text will update to classify the digit.
+ 
+ 10. To change models at any time, open the train window and repeat steps 6 & 7.
+ 
+ 11. To view the training and testing images used by the model navigate to the View Model Images window, which displays the training and testing images.
  
  
  ...

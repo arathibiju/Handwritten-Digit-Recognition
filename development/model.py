@@ -56,15 +56,14 @@ class Model():
         self.current_accuracy = 0
         self.max_accuracy = 0
         self.current_digit = 0
-        print('We are in Model init')
+    
         # self.model = model
         
-        # print(device)
         # self.criterion = criterion
         # self.optimizer = optimizer
 
     def main(self):
-        print('We are in Model main')
+
         print(f'Training MNIST Model on {self.device}\n{"=" * 44}')
         
         since = time.time()
@@ -86,7 +85,7 @@ class Model():
         self.device = 'cuda' if cuda.is_available() else 'cpu'
         # self.model = Model()
         self.model = torch.load('model.pth')
-        print("loading worked")
+
     
     def process_images(self):
 
@@ -110,7 +109,7 @@ class Model():
         scaledown = cv2.resize(invert, size, interpolation = cv2.INTER_AREA) ## scale down image to required size
         padded = cv2.copyMakeBorder(scaledown,4,4,4,4,cv2.BORDER_CONSTANT,value = 0) ## pad image with black space
 
-        cv2.imwrite('cry.png', padded)
+        ##cv2.imwrite('cry.png', padded)
 
         nparray = np.array(padded) ## convert image to numpy array
 
@@ -120,7 +119,6 @@ class Model():
         tensor = torch.unsqueeze(tensor,0) ## add 2 dimensions 
         tensor = torch.unsqueeze(tensor,0)
 
-        print(tensor.size())
 
         if cuda.is_available():
             tensor = tensor.cuda()
@@ -297,53 +295,7 @@ class Net(nn.Module):
         return x
 
 
-# model = Net()
-# model.to(device)
-# criterion = nn.CrossEntropyLoss()
-#optimizer = optim.SGD(model.parameters(), lr=0.2, momentum=0.5)
-#optimizer = optim.SGD(model.parameters(), lr=0.2)           # SGD with no momentum
-# optimizer = optim.Adam(model.parameters(), lr=0.001)       # use either Adam or SGD, doesnt matter.
 
-
-# def train(epoch):
-#     model.train()
-#     for batch_idx, (data, target) in enumerate(train_loader):
-#         data, target = data.to(device), target.to(device)
-#         optimizer.zero_grad()
-#         output = model(data)
-#         loss = criterion(output, target)
-#         loss.backward()
-#         optimizer.step()
-#         if batch_idx % 10 == 0:
-#             print('Train Epoch: {} | Batch Status: {}/{} ({:.0f}%) | Loss: {:.6f}'.format(
-#                 epoch, batch_idx * len(data), len(train_loader.dataset),
-#                 100. * batch_idx / len(train_loader), loss.item()))
-
-
-
-# max_accuracy = 0
-# def test():
-    # model.eval()
-    # test_loss = 0
-    # correct = 0
-    # global max_accuracy
-    # for data, target in test_loader:
-    #     data, target = data.to(device), target.to(device)
-    #     output = model(data)
-    #     # sum up batch loss
-    #     test_loss += criterion(output, target).item()
-    #     # get the index of the max
-    #     pred = output.data.max(1, keepdim=True)[1]
-    #     correct += pred.eq(target.data.view_as(pred)).cpu().sum()
-
-    # print(int(correct))
-    # print(max_accuracy) 
-    # test_loss /= len(test_loader.dataset)
-    # print(f'===========================\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} '
-    #       f'({100. * correct / len(test_loader.dataset):.0f}%)')
-    # max_accuracy = int(correct) if int(correct) > max_accuracy else max_accuracy
-    # print(f'Max accuracy so far: {max_accuracy} \n')
-   
 
 if __name__ == '__main__':
     download_data()

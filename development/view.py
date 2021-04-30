@@ -12,17 +12,13 @@ from PyQt5.QtCore       import QSize, Qt, QBasicTimer
 
 class View:
     def __init__(self, Controller):
-        #print('We are in init of View')
+        ##initialise the controller instance
         self.Controller = Controller
-       # print(Controller)
 
     def main(self):
-       # print('We are in main of View')
-       # print(self.Controller)
 
-        #self.mainloop()
         
-        
+        ## connect the different classes in View.py to the View class
         self.main_view = MyApp(self)
         
         self.dialog_view = TrainModelDialog(self)
@@ -30,10 +26,8 @@ class View:
         self.view_images_tabs = viewImagesTabs(self)
         
 
-        #ex1.show()
-        # #ex1.hide()
-        #sys.exit(app.exec_())
 
+## this widget creates the canvas and updates the painter according to each mouse click and drag
 class drawCanvas(QWidget) :
     def __init__(self):
         super().__init__()
@@ -134,36 +128,40 @@ class drawCanvas(QWidget) :
     def resizeEvent(self, event):
         pass
   
-
+## widget for main window in UI
 class MyApp(QMainWindow):
 
     def __init__(self, View):
         super().__init__()
 
+        #connect the controller class inherited from View to the MyApp class
         self.Controller = View.Controller
 
 
-        #print('myapp')
+        ## initialise the mainwindow, add menubar and size
         self.initUI()
 
+        ##create a widget and set is as the central widget in the window
         self.window = QWidget()
         self.setCentralWidget(self.window)
+        ## appply a grid layout to the window
         self.layout = QGridLayout()
         self.window.setLayout(self.layout)
-  
+        ## add a draw canvas object to the main window
         self.draw_widget = drawCanvas()
-  
         self.layout.addWidget(self.draw_widget,0,0)
 
+        ## add a Qlabel to display the graph in the main window
         self.graph = QLabel()
         self.graph.setPixmap(QPixmap('BlankGraph.png'))
+        ## add a Qlabel to display the recognition text in the main window under the graph
         self.text = QLabel()
         self.text.setAlignment(Qt.AlignCenter)
         self.text.setText("Please draw a digit")
 
         
         
-        
+        ## set up the clear and reconize buttons and add to the grid layout
         clearButton = QPushButton("Clear",self)
         clearButton.setStatusTip("Clear the Canvas")
         clearButton.clicked.connect(self.draw_widget.clearCanvas)
@@ -182,18 +180,23 @@ class MyApp(QMainWindow):
         self.layout.addWidget(self.graph, 0, 1)
         self.layout.addWidget(self.text, 1,1)
 
+    ## Reset the graph every time the recognize button is clicked.
+    ## this is called from controller
     def resetGraph(self):
         self.graph.setPixmap(QPixmap('Graph.png'))
 
+    ## Reset the text every time the recognize button is clicked.
+    ## this is called from controller
     def resetText(self, digit):
         self.text.setText(f"Your digit is {digit}")
 
+    ## save the image when recognize button is clicked
+    ##start procesing images when recognize button clicked
     def recognizeButtonCheck(self):
-        self.recognizeButton.clicked.connect(self.draw_widget.saveImage)
-        self.recognizeButton.clicked.connect(self.Controller.process_images_control)
+        self.draw_widget.saveImage()
+        self.Controller.process_images_control()
 
     def initUI(self):
-        #print('myapp ui')
         ## menu bar set up
         # Set menu bar exit action
         exitAction = QAction(QIcon('exit.png'), 'Exit', self)
@@ -201,21 +204,19 @@ class MyApp(QMainWindow):
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(qApp.quit)
 
+        ## set up a train action that connects to the train window
         train_action = QAction("Train", self)
         train_action.setStatusTip('Train the Model')
         train_action.triggered.connect(self.Controller.show_train_dialog)
 
-        # helpAction = QAction("Docs", self)
-        # helpAction.setStatusTip('View github docs and instructions')
-        # helpAction.triggered.connect(lambda: webbrowser.open('http://www.google.com'))
 
-        trainImagesAction = QAction("View Training Images", self)
-        trainImagesAction.setStatusTip('View Training Images used by the model')
-        trainImagesAction.triggered.connect(self.Controller.show_images_view)
-        testImagesAction = QAction("View Testing Images", self)
-        testImagesAction.setStatusTip('View Testing Images')
+        # trainImagesAction = QAction("View Training Images", self)
+        # trainImagesAction.setStatusTip('View Training Images used by the model')
+        # trainImagesAction.triggered.connect(self.Controller.show_images_view)
+        # testImagesAction = QAction("View Testing Images", self)
+        # testImagesAction.setStatusTip('View Testing Images')
 
-
+        ## set up an action that opens the view images window
         imagesAction = QAction("View Model Images", self)
         imagesAction.setStatusTip('View the training and testing images used by the model')
         imagesAction.triggered.connect(self.Controller.show_images_view)
@@ -227,50 +228,19 @@ class MyApp(QMainWindow):
         filemenu = menubar.addMenu('&File')
         filemenu.addAction(train_action)
         filemenu.addAction(exitAction)
-        
-
         viewmenu = menubar.addMenu('&View')
-        # viewmenu.addAction(trainImagesAction)
-        # viewmenu.addAction(testImagesAction)
         viewmenu.addAction(imagesAction)
-        # viewmenu.addAction(trainImagesAction)
-        # viewmenu.addAction(testImagesAction)
-
-        # helpmenu = menubar.addMenu('&Help')
-        # helpmenu.addAction(helpAction)
+       
 
         #set status message
         self.statusBar().showMessage('Ready')
 
+        # set window geometry
         self.setWindowTitle('Handwritten Digit Recognizer')
         self.setGeometry(300, 300, 400, 400)
 
         self.show()
     
-    # def mouseMoveEvent(self, e):
-        
-
-    #         if self.last_x is None: # First event.
-    #          self.last_x = e.x()
-    #          self.last_y = e.y()
-    #          return # Ignore the first time.
-
-    #         painter = QPainter(self.label.pixmap())
-    #         painter.setPen(QPen(Qt.black, 8))
-    #         painter.drawLine(self.last_x, self.last_y  -35, e.x(), e.y() - 35)
-    #         painter.end()
-    #         self.update()
-
-    #         # Update the origin for next time.
-    #         self.last_x = e.x()
-    #         self.last_y = e.y()
-
-
-    # def mouseReleaseEvent(self, e):
-        
-            
-    #     self.last_x = None
-    #     self.last_y = None
         
     # def resizeEvent(self, event):
     #     canvas = self.label.pixmap()
@@ -283,12 +253,6 @@ class TrainModelDialog(QWidget):
         
         self.View = View
         self.Controller = self.View.Controller
-        #print('now I see why')
-       # print(self.View)
-       # print('This is the controller inside the dialog')
-       # print(self.View.Controller)
-       # print(self.Controller)
-        #print(self.View.Controller.random_value)
         
         self.initUI()
 
@@ -340,15 +304,11 @@ class TrainModelDialog(QWidget):
             # We select the CNN Model by default...
         self.select_model_cbb1 = QComboBox(self)
 
-
         self.select_model_cbb1.addItem('CNN Model')
 
         self.select_model_cbb1.addItem('MLP Model')
         
 
-       # print('hey we are inside initUI dialog')
-       # print(self.View)
-       # print(self)
     ############# Configuring the initial states of all of the buttons
         #self.download_btn.setCheckable(True)
 
@@ -428,11 +388,6 @@ class TrainModelDialog(QWidget):
 
             self.menu.popup(QCursor.pos())
 
-    
-       # print("right button was clicked from menu")
-
-
- 
             
     ### Debugging command to be used internally in View.py, OFF by default!
     # def set_commands(something):
@@ -451,7 +406,6 @@ class TrainModelDialog(QWidget):
 class ViewImages(QMainWindow):
     def __init__(self, View):
         super().__init__()   
-       # print("view model dialog init")
         self.View = View
         self.Controller = self.View.Controller
         
@@ -478,62 +432,6 @@ class ViewImages(QMainWindow):
         self.move(qr.topLeft()) 
 
 
-'''
-    # class ViewModelImages(QMainWindow):
-    #     def __init__(self, View):
-    #         super().__init__()   
-    #         print("view model dialog init")
-    #         self.View = View
-    #         self.Controller = self.View.Controller
-            
-    #         self.initUI()
-
-    #     def initUI(self):
-
-    #     ### Here we use a combination of HBox and VBox
-    #     #First, define the buttons we want to use
-    #         self.next_btn = QPushButton('&Next', self)
-    #         self.prev_btn = QPushButton('&Previous', self)
-            
-
-
-    #         hbox = QHBoxLayout()
-    #         hbox.addWidget(self.prev_btn)
-    #         hbox.addWidget(self.next_btn)
-
-    #         vbox  = QVBoxLayout()
-    #         #vbox.addStretch(4)
-    #         vbox.addLayout(hbox)
-
-    #         self.setLayout(vbox)  
-
-
-    #         print('hey we are inside initUI dialog')
-    #         print(self.View)
-    #         print(self)
-
-            
-    #     ### Initialise the postion of the trainModelDialog window.
-    #         # It's not easy to make this tile to be at the centrem
-    #         # may need to create a custom bar for this
-    #         self.setWindowTitle('View Training Images')
-    #         self.move(300, 300)
-    #         self.resize(400, 200)
-    #         self.centre()
-    #             ### turn off self.show(), move this into a View tab on Main Window
-    #             ### only use this for quick debugging
-    #         #self.show()
-
-        
-
-    #     ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
-    #     def centre(self): 
-    #         qr = self.frameGeometry()
-    #         cp = QDesktopWidget().availableGeometry().center()
-    #         qr.moveCenter(cp)
-    #         self.move(qr.topLeft()) 
-
-'''
 ## subclass for the tab widget
 class viewImagesTabs(QWidget):
     def __init__(self, View):
@@ -549,13 +447,10 @@ class viewImagesTabs(QWidget):
         self.tabs = QTabWidget()
         self.view_train_images = ViewTrainImages(self)
         self.view_test_images = ViewTestImages(self)
-        #tabs = QTabWidget()
-        #tab3 = QWidget()
+     
         ## add tabs to widget by calling tab init functions, allowing us to easily customise tabs
         index = self.tabs.addTab(self.view_train_images, "Training Images")
-        print(f'index is {index}')
         index1 = self.tabs.addTab(self.view_test_images, "Testing Images")
-        print(f'index is {index1}')
         ## addd tab widget to the layout to display it
         vbox.addWidget(self.tabs)
 
@@ -644,9 +539,8 @@ class ViewTrainImages(QLabel):
 
         self.setLayout(vbox)   
 
-
+        ## update the image each time button is clicked
     def update_image(self, index):
-        print('check point')
         self.view_train_img.clear()
         img = QPixmap('cache/train_set/mnist_cache_' + str(index) +'.png')
         self.view_train_img.setPixmap(img)
@@ -678,8 +572,6 @@ class ViewTestImages(QLabel):
         self.next_btn_test.clicked.connect(self.Controller.test_next_page)
         self.prev_btn_test.clicked.connect(self.Controller.test_prev_page)
 
-        # self.test_btn1_test = QPushButton('Test', self)
-        # self.test_btn2_test = QPushButton('Test 2', self)
 
     #hbox for all the buttons
         hbox = QHBoxLayout()
@@ -694,8 +586,7 @@ class ViewTestImages(QLabel):
 
         ### vbox inside hbox2
         mini_vbox = QVBoxLayout()
-        # mini_vbox.addWidget(self.test_btn1_test)
-        # mini_vbox.addWidget(self.test_btn2_test)
+
         mini_vbox.addStretch(5)
 
         hbox2.addLayout(mini_vbox)
@@ -710,7 +601,6 @@ class ViewTestImages(QLabel):
 
 
     def update_image(self, index):
-        print('check point')
         self.view_test_img.clear()
         img = QPixmap('cache/test_set/mnist_cache_' + str(index) +'.png')
         self.view_test_img.setPixmap(img)

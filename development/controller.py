@@ -1,6 +1,12 @@
-# ##
-# This is the CONTROLLER of the application
-# ##
+'''
+Handwritten Digit Recognizer
+This is the CONTROLLER of the application
+
+Authors : Dexter Pham and Arathi Biju
+
+Semester 1 2021
+
+'''
 import sys
 import time
 import os
@@ -54,13 +60,15 @@ class Controller(QObject):
         else:  
             os.mkdir('cache/test_set') 
         
-    ## these functions call the coresponing functions in the View class to maintiain MVC
-    def show_train_dialog(self):        self.View.dialog_view.show()
+    ## these functions call the coresponding functions in the View class and maintain the MVC pattern
+    ## Functions are related to the Train Dialog Window
     def show_train_images_view(self):   self.View.train_images_view.show()
+    def show_train_dialog(self):        self.View.dialog_view.show()
     def disable_train_btn(self):        self.View.dialog_view.train_btn.setEnabled(False) 
     def disable_download_btn(self):     self.View.dialog_view.download_btn.setEnabled(False)
     def enable_download_button(self):   self.View.dialog_view.download_btn.setEnabled(True) 
     def enable_combo_box(self):         self.View.dialog_view.select_model_cbb1.setEnabled(True)
+    
     def enable_train_btn(self):
         if self.Model.data_available == True: self.View.dialog_view.train_btn.setEnabled(True)
     def enable_load_button(self):
@@ -70,7 +78,6 @@ class Controller(QObject):
         if self.View.dialog_view.pbar.value() ==  self.View.dialog_view.pbar.maximum(): 
             self.View.dialog_view.pbar.setValue(self.View.dialog_view.pbar.maximum())
         
-
     ## sets up progress bar for displaying training progress
     def pbar_train_mode(self):
         self.View.dialog_view.pbar.setMinimum(0)
@@ -80,11 +87,8 @@ class Controller(QObject):
     ## reset progress bar 
     def reset_pbar(self):
         self.View.dialog_view.pbar.setValue(0)
-       
 
-    ######## DIALOG UI STUFF HERE#########
     def downloadDialog(self): self.View.dialog_view.text_browser.append("Downloading MINST dataset..")
-
     def trainDialog(self):  self.View.dialog_view.text_browser.append("Training....")
 
 ## when download is complete enable train, load and combo box as display confirmation text
@@ -111,14 +115,10 @@ class Controller(QObject):
             self.View.dialog_view.text_browser.append('Training Cancelled')
 
     
-
     def clearDialog(self): self.View.dialog_view.text_browser.clear()
-
     def show_images_view(self): self.View.view_images.show()
 
 
-
-######## SOME CORE STUFF HERE #########
     ### below functions relate to the view images tab
     def train_next_page (self):
         #for i in range(0 ,11):
@@ -237,9 +237,12 @@ class Controller(QObject):
 
     ##############################     WORKER  #################################################################
     ############################################################################################################
-    """ All model related tasks are heavy; Hence, we offload it into worker_1
-        to make the main UI more responsive """
+    ## Below functions and classes relate to the multithreading required for the downloading, training 
+    # and progress bar implementation
+    """ (All model related tasks are heavy; Hence, we offload it into worker_1
+        to make the main UI more responsive )"""
 
+    # starts the download and disables the train and download buttons untill download complete
     def start_worker_1_download(self):
         self.thread[1].set_task("download")
         self.thread[1].complete = False
@@ -249,6 +252,7 @@ class Controller(QObject):
         self.disable_download_btn()
         self.thread[1].start()
 
+    # starts the train thread and sends signals to update progress bar
     def start_worker_1_train(self):
         self.pbar_train_mode()
         self.thread[1].set_task("train")
@@ -258,10 +262,7 @@ class Controller(QObject):
         
         self.thread[1].finished.connect(self.message_training_complete)
         self.thread[1].start()
-        
-
-
-        #self.thread[1].started.connect(self.start_worker_2_train)
+    
         self.View.dialog_view.train_btn.setEnabled(False)
        
 
@@ -270,40 +271,27 @@ class Controller(QObject):
         self.enable_train_btn()
 
     
-    """ Worker 2 is reserved for future features"""
-
-    """ The future is a bit sooner than expected"""
-    """ but yea we use worker_2 to poll the steps for the progress bar
-        This method is not very accurate and it may not be a good practice
-        to use two threads operate on the same instance of an object """
-
-    """ One way to overcome this issue is to make the Controller visible to 
-        the Model but then it may not comply MVC... 
-        Speaking of MVC, everyone has their own view but it's another story... """
+    """ Worker 2 is used to poll the steps for the progress bar"""
         
-
     def start_worker_2_train(self):
         self.thread[2].set_task("train")
         self.thread[2].pbar_signal.connect(self.pbar_update_slot)
         self.thread[2].start()
         
-
     def stop_worker_2(self):
-
         self.thread[2].stop()
         self.Model.progress = 0
         self.reset_pbar()
         ##self.completed_training_dialog()
 
-    ##############################################################################################################
-    ##############################################################################################################
 
+## class object for QThread to implement the multithreading
 class ThreadClass(QThread):
     pbar_signal = pyqtSignal(int)
     data_available_signal = pyqtSignal(int)
     def __init__(self, Controller, index = 0):
         super(ThreadClass, self).__init__()
-            # Here we are passing the MVC classes for multithreading!!!
+            # Here we are passing the MVC classes for multithreading
             # Operations related to the Model will be processed here in the background
         self.Model = Controller.Model
         self.View = Controller.View
@@ -324,10 +312,8 @@ class ThreadClass(QThread):
             if self.task == "download" :
                 self.Model.download_data()
                 self.complete = True
-                #self.download_dataset()
 
             elif self.task == "train": 
-                
                 self.Model.main() 
                 self.complete = True
 
@@ -339,8 +325,6 @@ class ThreadClass(QThread):
             
 
         elif self.index==2:
-
-
             if self.task == "train":
                 step = 0 
                 while step < self.Controller.View.dialog_view.pbar.maximum():
@@ -351,7 +335,6 @@ class ThreadClass(QThread):
 
 
     def stop(self):
-        
         self.is_running = False
         self.terminate()
         

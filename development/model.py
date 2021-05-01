@@ -1,6 +1,12 @@
-# ##
-# This is the MODEL of the application
-# ##
+'''
+Handwritten Digit Recognizer
+This is the MODEL of the application
+
+Authors : Dexter Pham and Arathi Biju
+
+Semester 1 2021
+
+'''
 
 from __future__ import print_function
 from torch import nn, optim, cuda
@@ -11,40 +17,18 @@ import time
 import cv2
 import numpy as np
 import torch 
-
-
 import matplotlib as plt
 from matplotlib import pyplot
-
-
 import matplotlib.pyplot as plt
-# # MNIST Dataset
-# train_dataset = datasets.MNIST(root='mnist_data/',
-#                             train=True,
-#                             transform=transforms.ToTensor(),
-#                             download=True)
-
-# test_dataset = datasets.MNIST(root='mnist_data/',
-#                             train=False,
-#                             transform=transforms.ToTensor())
 
 
-# # Data Loader (Input Pipeline)
-# train_loader = data.DataLoader(dataset=train_dataset,
-#                                            batch_size=batch_size,
-#                                            shuffle=True)
-
-# test_loader = data.DataLoader(dataset=test_dataset,
-#                                           batch_size=batch_size,
-#                                           shuffle=False)
-
-
+## The model class handles all deep learning models and their training and testing
+## it also contains functions related to image processing for predictions
 class Model():
     def __init__(self):
         self.batch_size = 30
         self.data_available = False
         self.set_device()
-        #self.load_dataset()
         self.model = Net()
         self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
@@ -63,9 +47,7 @@ class Model():
         # self.optimizer = optimizer
 
     def main(self):
-
         print(f'Training MNIST Model on {self.device}\n{"=" * 44}')
-        
         since = time.time()
         for epoch in range(1, self.epoch_range):
             epoch_start = time.time()
@@ -89,37 +71,29 @@ class Model():
     
     def process_images(self):
 
+        ### Process the image into a format similar to the MNIST dataset images
         original = cv2.imread('SavedImage.png')
         grayscale = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY) ## convert to grayscale for thresholding operation
         ## apply otsu binary thresholding to the image, will return a binary matrix with only 0 and 255 inverted
         ## which is needed for the input to the find non zero function
         threshold = cv2.threshold(grayscale, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] 
-
         # Find enclosing bounding box and crop image accordingly
         coords = cv2.findNonZero(threshold)
-
         x,y,w,h = cv2.boundingRect(coords)
-
         crop = grayscale[y:y+h, x:x+w]
-
         invert = cv2.bitwise_not(crop) ## invert image
-
         size = (20, 20) ## create size object for scaling
-
         scaledown = cv2.resize(invert, size, interpolation = cv2.INTER_AREA) ## scale down image to required size
         padded = cv2.copyMakeBorder(scaledown,4,4,4,4,cv2.BORDER_CONSTANT,value = 0) ## pad image with black space
-
         ##cv2.imwrite('cry.png', padded)
 
+        ## Convert processed image into a format recognized by the model ie a tensor
         nparray = np.array(padded) ## convert image to numpy array
-
-
         tensor = torch.from_numpy(nparray).float() ## convert to tensor
-
         tensor = torch.unsqueeze(tensor,0) ## add 2 dimensions 
         tensor = torch.unsqueeze(tensor,0)
-
         tensor = tensor/255
+
         if cuda.is_available():
             tensor = tensor.cuda()
         else:
@@ -132,14 +106,11 @@ class Model():
         # Output of the network are log-probabilities, need to take exponential for probabilities
         probablilty_cpu = torch.exp(logpb)
         probablilty_cpu = probablilty_cpu.cpu()
-        
         probab = list( probablilty_cpu.numpy()[0])
         self.current_digit = probab.index(max(probab))
         print("Predicted Digit =", probab.index(max(probab)))
 
-
-    ###Function for viewing an image and it's predicted classes.
-
+        
         tensor = tensor.view(1, 28, 28)
         probablilty_cpu =  probablilty_cpu.data.numpy().squeeze()
         probablilty_cpu =  probablilty_cpu/100
@@ -158,6 +129,7 @@ class Model():
         plt.tight_layout()
         plt.savefig('Graph.png')
 
+    ## Function to train the model
     def train(self, epoch):
         self.model.train()
         for batch_idx, (data, target) in enumerate(self.train_loader):
@@ -174,7 +146,8 @@ class Model():
                     100. * batch_idx / len(self.train_loader), loss.item()))
         
                 
-
+    ## Dowload the dataset. If download is unavailable due to server issues, display message 
+    ## and retry
     def download_data(self):
         try:
             self.train_dataset = datasets.MNIST(root='mnist_data/',
@@ -194,6 +167,7 @@ class Model():
             time.sleep(2)
             self.download_data()
 
+    ## Load dataset into model
     def load_dataset(self):
         # Data Loader (Input Pipeline)
             self.train_loader = data.DataLoader(dataset = self.train_dataset,
@@ -207,7 +181,7 @@ class Model():
     def set_device(self):
         self.device = 'cuda' if cuda.is_available() else 'cpu'
         
-        
+    ## Testing the model
     def test(self):
         self.model.eval()
         test_loss = 0
@@ -233,10 +207,7 @@ class Model():
 
         x = self.max_accuracy
         self.model_accuracy_string = f'Max accuracy so far: {self.max_accuracy}'
-
-        
-
-        
+     
 
 ## CNN Model adapted from https://www.kaggle.com/gustafsilva/cnn-digit-recognizer-pytorch written by Gustavo F. Silva
 class Net(nn.Module):
@@ -293,7 +264,6 @@ class Net(nn.Module):
         x = self.fc(x)
         #x = F.log_softmax(x, dim=1)        #use either this or the nn.CrossEngtropyLoss(), doesnt really matter
         return x
-
 
 
 

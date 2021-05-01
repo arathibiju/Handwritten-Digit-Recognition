@@ -1,6 +1,13 @@
-# ##
-# This is the VIEW of the application
-# ##
+'''
+Handwritten Digit Recognizer
+This is the VIEW of the application
+
+Authors : Dexter Pham and Arathi Biju
+
+Semester 1 2021
+
+'''
+
 
 import sys
 from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog, QComboBox
@@ -199,7 +206,7 @@ class MyApp(QMainWindow):
 
     def initUI(self):
         ## menu bar set up
-        # Set menu bar exit action
+        ## Set menu bar exit action
         exitAction = QAction(QIcon('exit.png'), 'Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
@@ -210,44 +217,30 @@ class MyApp(QMainWindow):
         train_action.setStatusTip('Train the Model')
         train_action.triggered.connect(self.Controller.show_train_dialog)
 
-
-        # trainImagesAction = QAction("View Training Images", self)
-        # trainImagesAction.setStatusTip('View Training Images used by the model')
-        # trainImagesAction.triggered.connect(self.Controller.show_images_view)
-        # testImagesAction = QAction("View Testing Images", self)
-        # testImagesAction.setStatusTip('View Testing Images')
-
         ## set up an action that opens the view images window
         imagesAction = QAction("View Model Images", self)
         imagesAction.setStatusTip('View the training and testing images used by the model')
         imagesAction.triggered.connect(self.Controller.show_images_view)
 
-
-
-        #set menu bar options
+        ##set menu bar options
         menubar = self.menuBar()
         filemenu = menubar.addMenu('&File')
         filemenu.addAction(train_action)
         filemenu.addAction(exitAction)
         viewmenu = menubar.addMenu('&View')
         viewmenu.addAction(imagesAction)
-       
 
-        #set status message
+        ##set status message
         self.statusBar().showMessage('Ready')
 
-        # set window geometry
+        ## set window geometry
         self.setWindowTitle('Handwritten Digit Recognizer')
         self.setGeometry(300, 300, 400, 400)
 
         self.show()
-    
-        
-    # def resizeEvent(self, event):
-    #     canvas = self.label.pixmap()
-    #     canvas = canvas.scaled(self.width(), self.height(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    #     self.label.setPixmap(canvas)
 
+
+## The train dialog window
 class TrainModelDialog(QWidget):
     def __init__(self, View):
         super().__init__()   
@@ -258,28 +251,21 @@ class TrainModelDialog(QWidget):
         self.initUI()
 
     def initUI(self):
-    ### Set up the browser here
+    ## Set up the browser here
         self.text_browser = QTextBrowser()
         self.text_browser.setAcceptRichText(True)
         self.text_browser.setContextMenuPolicy(Qt.CustomContextMenu)
 
 
-    ### Set up the progress bar here
-    # Label for the progress bar
+    ## Set up the progress bar here
+    ## Label for the progress bar
         self.plabel = QLabel('-/-', self)
-    # Nothing is connected to the progress bar for now!
         self.pbar = QProgressBar(self)
         self.pbar.setTextVisible(True)
         self.pbar.setAlignment(Qt.AlignCenter)
         self.pbar.setRange(0, 100)
         self.pbar.setValue(0)      # Set the progress bar to 0 at the beginning!
-
-        #self.pbar.setAttribute(Qt.WA_StyledBackground)
-        #StyleSheet = "GreenProgressBar::chunk {background-color: #009688;}"
-        #StyleSheet = "QProgressBar""{""border: solid grey;""border-radius: 50px;"" color: black; E0E0E0""}05B8CC"
-        #self.pbar.setStyleSheet(StyleSheet)
-        """ css doesn't work properly, idk why??? """
-        
+        ## style sheet for progress bar
         self.pbar.setStyleSheet("QProgressBar"
                           "{"
                           "border: solid grey;"
@@ -296,35 +282,29 @@ class TrainModelDialog(QWidget):
     ### Here we use a combination of HBox and VBox
     #First, define the buttons we want to use
         self.download_btn = QPushButton('&Download MNIST', self)
-        #self.select_model_btn = QPushButton('Select Model', self)   # This is a place holder button
-        self.load_model_btn = QPushButton('Load Model', self)       # This is a place holder
+        self.load_model_btn = QPushButton('Load Model', self)    
         self.train_btn = QPushButton('&Train', self)
         self.cancel_btn = QPushButton('&Cancel', self)
             # One of the button is a combo box so we define it here
             # This combo box has 2 options, 1 to select the MLP model, 1 for the CNN model
             # We select the CNN Model by default...
         self.select_model_cbb1 = QComboBox(self)
-
         self.select_model_cbb1.addItem('CNN Model')
-
         self.select_model_cbb1.addItem('MLP Model')
         
 
-    ############# Configuring the initial states of all of the buttons
-        #self.download_btn.setCheckable(True)
+    ### Configuring the initial states of all of the buttons
 
         self.select_model_cbb1.setEnabled(False)
         self.load_model_btn.setEnabled(False)
         self.train_btn.setEnabled(False)
-        #self.cancel_btn.setCheckable(True)
 
 
         self.download_btn.clicked.connect(self.Controller.start_worker_1_download)
-        #self.download_btn.clicked.connect(self.Controller.downloadDialog)   # This signal need to be moved to somewhere too, not here
+        
         self.load_model_btn.clicked.connect(self.Controller.load_model_control)
         self.train_btn.clicked.connect(self.Controller.start_worker_1_train)
         self.train_btn.clicked.connect(self.Controller.start_worker_2_train)
-        #self.train_btn.clicked.connect(self.Controller.trainDialog)        #Turn this off for testing purpose
 
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_1)
         self.cancel_btn.clicked.connect(self.Controller.stop_worker_2)
@@ -353,26 +333,23 @@ class TrainModelDialog(QWidget):
         self.setLayout(vbox)   
 
     ### Initialise the postion of the trainModelDialog window.
-        # It's not easy to make this tile to be at the centrem
-        # may need to create a custom bar for this
-        self.setWindowTitle('Dialog')
+        self.setWindowTitle('Train Dialog')
         self.move(300, 300)
         self.resize(400, 200)
         self.centre()
-            ### turn off self.show(), move this into a View tab on Main Window
-            ### only use this for quick debugging
         #self.show()
 
     
-
-    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
+    ### Function to move the dialog box to the centre of screen
     def centre(self): 
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft()) 
 
+    ## Function overrides mouse press event to implement clearing and copying of text in browser
     def mousePressEvent(self, QMouseEvent):
+        ## Add a menu that appears on right click wiht clear and copy actions
         if QMouseEvent.button() == Qt.RightButton:
             self.menu = QMenu()
             clearAction = QAction("Clear", self)
@@ -383,26 +360,9 @@ class TrainModelDialog(QWidget):
             copyAction.setStatusTip('Copy text')
             copyAction.triggered.connect(self.text_browser.copy)
             copyAction.setShortcut('Ctrl+Q')
-
             self.menu.addAction(copyAction)
 
-
             self.menu.popup(QCursor.pos())
-
-            
-    ### Debugging command to be used internally in View.py, OFF by default!
-    # def set_commands(something):
-    #     self.commands = something
-    #     print('commands successfully sent!')
-
-    # def enable_button(self):
-    #     if self.train_btn.isChecked():
-    #         self.download_btn.setEnabled(True)
-    #         self.cancel_btn.setEnabled(True)
-    #     else:
-    #         self.download_btn.setEnabled(False)
-    #         self.cancel_btn.setEnabled(False) 
-
 
 class ViewImages(QMainWindow):
     def __init__(self, View):
@@ -414,8 +374,8 @@ class ViewImages(QMainWindow):
 
     def initUI(self):
 
-        ### Initiliase the layout of the ViewImages Window
-             ## create custom widget for the tabs and assign as the central widget
+        ## Initiliase the layout of the ViewImages Window
+        ## create custom widget for the tabs and assign as the central widget
         self.tab_widget = viewImagesTabs(self)
         self.setCentralWidget(self.tab_widget)
 
@@ -424,8 +384,7 @@ class ViewImages(QMainWindow):
         self.centre()
    
     
-
-    ###We can define the centre of the dialog here, may be centre of the screen or centre of the current app???
+    ## Function to move the dialog box to the centre of screen
     def centre(self): 
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
@@ -440,7 +399,7 @@ class viewImagesTabs(QWidget):
         self.View = View
         self.Controller = self.View.Controller 
 
-        ## assign to a vbox layout. doesnt really matter as long as there is some layout
+        ## assign to a vbox layout
         vbox = QVBoxLayout()
         self.setLayout(vbox)
        
@@ -461,10 +420,7 @@ class viewImagesTabs(QWidget):
         TrainImageTab = QWidget()
         layout = QVBoxLayout()
         TrainImageTab.setLayout(layout)
-        ## add example text change this as needed
         self.label = QLabel()
-        #label.setText("Example Text")
-        #lbl_img.setPixmap(pixmap)
         self.label.setPixmap(QPixmap("Figure.png"))
         layout.addWidget(self.label)
 
@@ -502,16 +458,12 @@ class ViewTrainImages(QLabel):
         # self.scroll_area = QScrollArea(self)
         # self.scroll_area.setWidget(self.view_train_img)
 
-
     #Then, define the buttons we want to use
         self.next_btn = QPushButton('&Next', self)
         self.prev_btn = QPushButton('&Prev', self)
 
         self.next_btn.clicked.connect(self.Controller.train_next_page)
         self.prev_btn.clicked.connect(self.Controller.train_prev_page)
-
-        # self.test_btn1 = QPushButton('Test', self)
-        # self.test_btn2 = QPushButton('Test 2', self)
 
     #hbox for all the buttons
         hbox = QHBoxLayout()
@@ -522,16 +474,12 @@ class ViewTrainImages(QLabel):
     #hbox for the main layout
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.view_train_img)
-        
 
         ### vbox inside hbox2
         mini_vbox = QVBoxLayout()
-        # mini_vbox.addWidget(self.test_btn1)
-        # mini_vbox.addWidget(self.test_btn2)
         mini_vbox.addStretch(5)
 
         hbox2.addLayout(mini_vbox)
-
 
         vbox  = QVBoxLayout()
 
@@ -547,7 +495,7 @@ class ViewTrainImages(QLabel):
         self.view_train_img.setPixmap(img)
         self.update()
 
-
+## Similar object as earlier but for the testing images instead of training images
 class ViewTestImages(QLabel):
     def __init__(self, View):
         super().__init__()
@@ -565,14 +513,12 @@ class ViewTestImages(QLabel):
         # self.scroll_area = QScrollArea(self)
         # self.scroll_area.setWidget(self.view_train_img)
 
-
     #Then, define the buttons we want to use
         self.next_btn_test = QPushButton('&Next', self)
         self.prev_btn_test = QPushButton('&Prev', self)
 
         self.next_btn_test.clicked.connect(self.Controller.test_next_page)
         self.prev_btn_test.clicked.connect(self.Controller.test_prev_page)
-
 
     #hbox for all the buttons
         hbox = QHBoxLayout()
@@ -584,14 +530,12 @@ class ViewTestImages(QLabel):
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.view_test_img)
         
-
         ### vbox inside hbox2
         mini_vbox = QVBoxLayout()
 
         mini_vbox.addStretch(5)
 
         hbox2.addLayout(mini_vbox)
-
 
         vbox  = QVBoxLayout()
 
@@ -600,7 +544,7 @@ class ViewTestImages(QLabel):
 
         self.setLayout(vbox)   
 
-
+    ## update the image each time button is clicked
     def update_image(self, index):
         self.view_test_img.clear()
         img = QPixmap('cache/test_set/mnist_cache_' + str(index) +'.png')

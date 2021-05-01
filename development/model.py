@@ -119,7 +119,7 @@ class Model():
         tensor = torch.unsqueeze(tensor,0) ## add 2 dimensions 
         tensor = torch.unsqueeze(tensor,0)
 
-
+        tensor = tensor/255
         if cuda.is_available():
             tensor = tensor.cuda()
         else:
@@ -238,7 +238,7 @@ class Model():
 
         
 
-
+## CNN Model adapted from https://www.kaggle.com/gustafsilva/cnn-digit-recognizer-pytorch written by Gustavo F. Silva
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()

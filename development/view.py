@@ -6,7 +6,7 @@ import sys
 from PyQt5.QtWidgets    import QApplication, QWidget, QPushButton, QToolTip, QLabel, QDialog, QComboBox
 from PyQt5.QtWidgets    import QMainWindow, QAction, qApp, QDesktopWidget, QSizePolicy, QTabWidget
 from PyQt5.QtWidgets    import QGridLayout, QHBoxLayout, QMenu, QProgressBar, QTextBrowser, QVBoxLayout, QScrollArea
-from PyQt5.QtGui        import QColor, QCursor, QIcon, QPainter, QPen, QPixmap, QPixmap
+from PyQt5.QtGui        import QColor, QCursor, QIcon, QPainter, QPen, QPixmap, QPixmap, QFont
 from PyQt5.QtCore       import QSize, Qt, QBasicTimer 
 
 
@@ -159,9 +159,7 @@ class MyApp(QMainWindow):
         self.text.setAlignment(Qt.AlignCenter)
         self.text.setText("Please draw a digit")
 
-        
-        
-        ## set up the clear and reconize buttons and add to the grid layout
+        ## set up the clear and reconize buttons functionality
         clearButton = QPushButton("Clear",self)
         clearButton.setStatusTip("Clear the Canvas")
         clearButton.clicked.connect(self.draw_widget.clearCanvas)
@@ -171,14 +169,16 @@ class MyApp(QMainWindow):
         self.recognizeButton.setStatusTip("Classify the drawn digit. Please load model before classifying")
         self.recognizeButton.setEnabled(False)
         self.recognizeButton.clicked.connect(self.recognizeButtonCheck)
-        
 
-    
-
+        ## add the buttons, graph and text to layout
         self.layout.addWidget(clearButton,1,0)
         self.layout.addWidget(self.recognizeButton,2,0)
         self.layout.addWidget(self.graph, 0, 1)
         self.layout.addWidget(self.text, 1,1)
+        
+        self.setFixedSize(1300, 700)
+
+        
 
     ## Reset the graph every time the recognize button is clicked.
     ## this is called from controller
@@ -189,6 +189,7 @@ class MyApp(QMainWindow):
     ## this is called from controller
     def resetText(self, digit):
         self.text.setText(f"Your digit is {digit}")
+        
 
     ## save the image when recognize button is clicked
     ##start procesing images when recognize button clicked
